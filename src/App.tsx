@@ -14,7 +14,6 @@ import { useTheme } from './context/ThemeContext';
 export default function App() {
   const { theme } = useTheme();
   const { isAuthenticated } = useAuth();
-  console.log(isAuthenticated,"APP")
   if (!isAuthenticated) {
     return (
       <Router>

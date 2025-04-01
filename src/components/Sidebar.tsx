@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Gift, Package, FileText, ClipboardList, User, Palette, Shield, Book } from 'lucide-react';
+import { Home, Gift, Package, FileText, ClipboardList, User, Palette, Shield, Book, FileSpreadsheet } from 'lucide-react';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -51,6 +51,7 @@ export function Sidebar() {
           <NavItem icon={<Gift />} text="Smart Gifting" to="/smart-gifting" />
           <NavItem icon={<Package />} text="Smart Catalog" to="/smart-catalog" />
           <NavItem icon={<FileText />} text="Digital Gifting" to="/digital-gifting" />
+          <NavItem icon={<FileSpreadsheet />} text="Smart Proposal" to="/smart-proposal" />
         </NavSection>
 
         <NavSection title="MANAGE">

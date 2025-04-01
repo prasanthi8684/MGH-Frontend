@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gift, Package, QrCode } from 'lucide-react';
+import { Gift, Package, QrCode, FileSpreadsheet } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface FeatureCardProps {
@@ -42,7 +42,7 @@ export function HomePage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <FeatureCard
           title="Smart Gifting"
           description="AI - powered gift curator"
@@ -60,6 +60,12 @@ export function HomePage() {
           description="Explore digital gifting options"
           icon={<QrCode />}
           to="/digital-gifting"
+        />
+        <FeatureCard
+          title="Smart Proposal"
+          description="Generate professional proposals"
+          icon={<FileSpreadsheet />}
+          to="/smart-proposal"
         />
       </div>
     </div>

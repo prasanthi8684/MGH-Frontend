@@ -16,7 +16,7 @@ export function Register() {
     jobRole:'',
     acceptTerms: false
   });
-  const APIURL = 'http://localhost:5000';
+  const APIURL = 'http://139.59.76.86:5000';
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -257,4 +257,8 @@ export function Register() {
       </div>
     </div>
   );
+}
+
+function setError(arg0: string) {
+  throw new Error('Function not implemented.');
 }
