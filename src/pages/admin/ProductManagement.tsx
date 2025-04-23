@@ -53,9 +53,9 @@ export function ProductManagement() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [productsRes, categoriesRes, subcategoriesRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/products'),
-        axios.get('http://localhost:5000/api/admin/categories'),
-        axios.get('http://localhost:5000/api/admin/subcategories')
+        axios.get('http://139.59.76.86:5000/api/admin/products'),
+        axios.get('http://139.59.76.86:5000/api/admin/categories'),
+        axios.get('http://139.59.76.86:5000/api/admin/subcategories')
       ]);
 
       setProducts(productsRes.data);
@@ -114,12 +114,12 @@ export function ProductManagement() {
 
       if (selectedProduct) {
         await axios.put(
-          `http://localhost:5000/api/admin/products/${selectedProduct._id}`,
+          `http://139.59.76.86:5000/api/admin/products/${selectedProduct._id}`,
           formDataToSend,
           { headers }
         );
       } else {
-        await axios.post('http://localhost:5000/api/admin/products', formDataToSend, { headers });
+        await axios.post('http://139.59.76.86:5000/api/admin/products', formDataToSend, { headers });
       }
 
       setIsModalOpen(false);
@@ -145,7 +145,7 @@ export function ProductManagement() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/admin/products/${id}`, {
+      await axios.delete(`http://139.59.76.86:5000/api/admin/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();

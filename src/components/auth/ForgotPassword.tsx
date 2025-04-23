@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Toast } from '../ui/Toast';
 
 export function ForgotPassword() {
-    const APIURL = 'http://localhost:5000';
+    const APIURL = 'http://139.59.76.86:5000';
   const [bussinessemail, setEmail] = useState('');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +30,7 @@ export function ForgotPassword() {
           setEmail('');
       } catch (err) {
         setMessage({
-            text: error instanceof Error ? error.message : 'Failed to send reset instructions.',
+            text: err instanceof Error ? err.message : 'Failed to send reset instructions.',
             type: 'error'
           });
         } finally {

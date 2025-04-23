@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = async (data: Partial<User>) => {
     try {
       const response = await axios.put(
-        'http://localhost:5000/api/auth/profile',
+        'http://139.59.76.86:5000/api/auth/profile',
         data,
         {
           headers: {
