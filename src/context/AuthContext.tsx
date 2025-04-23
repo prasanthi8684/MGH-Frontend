@@ -1,18 +1,31 @@
+import axios from 'axios';
 import React, { createContext, useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   login: (bussinessemail: string, password: string) => Promise<void>;
   logout: () => void;
+  user: any;
   resetPassword: (email: string) => Promise<void>;
   completePasswordReset: (token: string, newPassword: string) => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  company: string;
+  phone: string;
+  avatar?: string;
+}
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const login = async (bussinessemail: string, password: string) => {
     // Simulate API call - replace with your actual login logic
     const formData = {
@@ -33,6 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data._id);
         localStorage.setItem('email', data.email);
+        setUser(data.user);
         setIsAuthenticated(true);
       } else {
         const errorData = await response.json();
@@ -45,7 +59,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
     setIsAuthenticated(false);
+   // navigate('/login', { replace: true });
   };
   const resetPassword = async (email: string) => {
     // Simulate API call - replace with your actual password reset logic
@@ -76,12 +93,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return;
   };
 
+
+  const updateProfile = async (data: Partial<User>) => {
+    try {
+      const response = await axios.put(
+        'http://localhost:5000/api/auth/profile',
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setUser(response.data);
+    } catch (error) {
+      throw new Error('Failed to update profile');
+    }
+  };
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, resetPassword, completePasswordReset }}>
+    <AuthContext.Provider value={{ user,isAuthenticated,updateProfile, login, logout, resetPassword, completePasswordReset }}>
       {children}
     </AuthContext.Provider>
   );
 }
+
 
 export function useAuth() {
   const context = useContext(AuthContext);

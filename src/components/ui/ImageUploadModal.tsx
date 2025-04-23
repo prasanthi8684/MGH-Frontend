@@ -6,7 +6,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 interface ImageUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (croppedImage: string) => void;
+  onUpload: (croppedImage: any) => void;
   aspectRatio?: number;
   maxSize?: { width: number; height: number };
 }

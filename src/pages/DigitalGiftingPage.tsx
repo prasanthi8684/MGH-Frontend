@@ -1,97 +1,64 @@
-import React, { useState } from 'react';
-import { QrCode, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { QrCode, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-interface GiftCard {
-  id: string;
-  title: string;
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
   price: number;
-  image: string;
-  brand: string;
+  images: string[];
+  category: string;
+  subcategory: string;
+}
+
+interface SubCategory {
+  _id: string;
+  name: string;
+  category: string;
 }
 
 export function DigitalGiftingPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [subcategories, setSubcategories] = useState<SubCategory[]>([]);
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const cardsPerPage = 8;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  const productsPerPage = 8;
 
-  const giftCards: GiftCard[] = [
-    {
-      id: '1',
-      title: 'Flower Chimp Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&q=80&w=600',
-      brand: 'Flower Chimp'
-    },
-    {
-      id: '2',
-      title: 'CakeRush Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&q=80&w=600',
-      brand: 'CakeRush'
-    },
-    {
-      id: '3',
-      title: 'LVLY Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1519378058457-4c29a0a2efac?auto=format&fit=crop&q=80&w=600',
-      brand: 'LVLY'
-    },
-    {
-      id: '4',
-      title: 'Zalora Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&q=80&w=600',
-      brand: 'Zalora'
-    },
-    {
-      id: '5',
-      title: 'Uniqlo Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&q=80&w=600',
-      brand: 'Uniqlo'
-    },
-    {
-      id: '6',
-      title: 'Mimone Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&q=80&w=600',
-      brand: 'Mimone'
-    },
-    {
-      id: '7',
-      title: 'Kurin Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&q=80&w=600',
-      brand: 'Kurin'
-    },
-    {
-      id: '8',
-      title: 'Grab Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&q=80&w=600',
-      brand: 'Grab'
-    },
-    // Additional cards for pagination demo
-    {
-      id: '9',
-      title: 'Starbucks Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&q=80&w=600',
-      brand: 'Starbucks'
-    },
-    {
-      id: '10',
-      title: 'Sephora Gift Card',
-      price: 50.00,
-      image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&q=80&w=600',
-      brand: 'Sephora'
+  useEffect(() => {
+    fetchData();
+  }, [selectedSubcategory]);
+
+  const fetchData = async () => {
+    try {
+      const [productsRes, subcategoriesRes] = await Promise.all([
+        axios.get('http://localhost:5000/api/admin/products', {
+          params: {
+            category: 'digital-gifting',
+            subcategory: selectedSubcategory || undefined
+          }
+        }),
+        axios.get('http://localhost:5000/api/admin/subcategories')
+      ]);
+
+      setProducts(productsRes.data);
+      setSubcategories(subcategoriesRes.data);
+    } catch (error) {
+      setError('Error fetching data');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  // Get current cards
-  const indexOfLastCard = currentPage * cardsPerPage;
-  const indexOfFirstCard = indexOfLastCard - cardsPerPage;
-  const currentCards = giftCards.slice(indexOfFirstCard, indexOfLastCard);
-  const totalPages = Math.ceil(giftCards.length / cardsPerPage);
+  // Get current products
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(products.length / productsPerPage);
 
   // Change page
   const paginate = (pageNumber: number) => {
@@ -111,6 +78,14 @@ export function DigitalGiftingPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -124,31 +99,71 @@ export function DigitalGiftingPage() {
           </div>
         </div>
 
+        {/* Subcategory Filter */}
+        {subcategories.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm p-4 mb-8">
+            <div className="flex gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
+              <select
+                value={selectedSubcategory}
+                onChange={(e) => setSelectedSubcategory(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="">All Subcategories</option>
+                {subcategories
+                  .map((subcategory) => (
+                    <option key={subcategory._id} value={subcategory.name}>
+                      {subcategory.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
+
         {/* Gift Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-          {currentCards.map((card) => (
-            <div key={card.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          {currentProducts.map((product) => (
+            <div key={product._id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <div className="relative aspect-[4/3]">
                 <img
-                  src={card.image}
-                  alt={card.title}
+                  src={product.images[0] || 'https://via.placeholder.com/400'}
+                  alt={product.name}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 rounded-full text-sm font-medium">
-                  {card.brand}
-                </div>
-                <div className="absolute top-4 right-4 px-3 py-1 bg-black/80 text-white rounded-full text-sm font-medium">
-                  RM{card.price.toFixed(2)}
-                </div>
+                 <div className="absolute top-4 right-4 flex gap-2">
+                                  <Link
+                                    to={`/digital-gifting/${product._id}`}
+                                    className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
+                                  >
+                                    <Eye className="h-5 w-5 text-gray-600" />
+                                  </Link>
+                                 
+                                </div>
+             
+             
               </div>
               <div className="p-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  {card.title}
+                  {product.name}
                 </h3>
-                <button className="w-full flex items-center justify-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors">
-                  <QrCode className="h-4 w-4 mr-2" />
-                  View
-                </button>
+                <Link
+                  to={`/digital-gifting/${product._id}`}
+                  className="w-full flex items-center justify-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Details
+                </Link>
               </div>
             </div>
           ))}

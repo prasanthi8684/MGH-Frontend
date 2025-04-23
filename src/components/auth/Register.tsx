@@ -58,7 +58,7 @@ export function Register() {
     }));
   };
 
-  const handleSelectChange = (event) => {
+  const handleSelectChange = (event : any) => {
     const { name, value } = event.target;
     setFormData(prev => ({
       ...prev,

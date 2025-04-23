@@ -1,164 +1,171 @@
-import React, { useState } from 'react';
-import { Package, Upload, Eye } from 'lucide-react';
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Eye, Heart, Package } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 interface Product {
-  id: string;
-  title: string;
+  _id: string;
+  name: string;
+  description: string;
   price: number;
-  image: string;
-  color: string;
+  images: string[];
+  category: string;
+  subcategory: string;
+}
+
+interface Category {
+  _id: string;
+  name: string;
+}
+
+interface SubCategory {
+  _id: string;
+  name: string;
+  category: string;
 }
 
 export function SmartCatalogPage() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 8;
+  const [products, setProducts] = useState<Product[]>([]);
 
-  const products: Product[] = [
-    {
-      id: '1',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&q=80&w=500',
-      color: 'Darkblue'
-    },
-    {
-      id: '2',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1589203832113-de9d1e945f13?auto=format&fit=crop&q=80&w=500',
-      color: 'Red'
-    },
-    {
-      id: '3',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=500',
-      color: 'Grey'
-    },
-    {
-      id: '4',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&q=80&w=500',
-      color: 'Brown'
-    },
-    // Add more products for pagination...
-    {
-      id: '5',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&q=80&w=500',
-      color: 'Navy'
-    },
-    {
-      id: '6',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1589203832113-de9d1e945f13?auto=format&fit=crop&q=80&w=500',
-      color: 'Maroon'
-    },
-    {
-      id: '7',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=500',
-      color: 'Silver'
-    },
-    {
-      id: '8',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&q=80&w=500',
-      color: 'Tan'
-    },
-    {
-      id: '9',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&q=80&w=500',
-      color: 'Black'
-    },
-    {
-      id: '10',
-      title: 'Notebook giftset',
-      price: 47.80,
-      image: 'https://images.unsplash.com/photo-1589203832113-de9d1e945f13?auto=format&fit=crop&q=80&w=500',
-      color: 'White'
+  const [subcategories, setSubcategories] = useState<SubCategory[]>([]);
+
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchData();
+  }, [ selectedSubcategory]);
+
+  const fetchData = async () => {
+    try {
+      const [productsRes,  subcategoriesRes] = await Promise.all([
+        axios.get('http://localhost:5000/api/admin/products', {
+          params: {
+            category: 'smart-catalog',
+            subcategory: selectedSubcategory || undefined
+          }
+         
+        }),
+        axios.get('http://localhost:5000/api/admin/subcategories')
+      ]);
+
+      setProducts(productsRes.data);
+      setSubcategories(subcategoriesRes.data);
+    } catch (error) {
+      setError('Error fetching data');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  // Get current products
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const toggleFavorite = (productId: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(productId)) {
+        newFavorites.delete(productId);
+      } else {
+        newFavorites.add(productId);
+      }
+      return newFavorites;
+    });
+  };
 
-  // Change page
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(products.length / productsPerPage); i++) {
-    pageNumbers.push(i);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-3">
-            <Package className="h-6 w-6" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Smart Catalog</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center">
+            <div className="p-3 bg-amber-50 rounded-full mr-4">
+              <Package className="h-6 w-6 text-amber-500" />
+            </div>
+            <h1 className="text-2xl font-bold text-amber-500">Smart Catalog</h1>
           </div>
-          <button className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors">
-            <Upload className="h-4 w-4 mr-2" />
-            UPLOAD LOGO
-          </button>
         </div>
+
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-8">
+          <div className="grid grid-cols-2 gap-4">
+            
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Subcategory
+              </label>
+              <select
+                value={selectedSubcategory}
+                onChange={(e) => setSelectedSubcategory(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="">All Subcategories</option>
+                {subcategories
+                  .map((subcategory) => (
+                    <option key={subcategory._id} value={subcategory.name}>
+                      {subcategory.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-          {currentProducts.map((product) => (
-            <div key={product.id} className="bg-white-800 rounded-lg overflow-hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <div key={product._id} className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="aspect-square relative">
                 <img
-                  src={product.image}
-                  alt={`${product.title} - ${product.color}`}
+                  src={product.images[0] || 'https://via.placeholder.com/400'}
+                  alt={product.name}
                   className="w-full h-full object-cover"
                 />
-              </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-1">
-                  {product.title} - {product.color}
-                </h3>
-                <div className="flex justify-between items-center">
-                  <span className="text-red-600">
-                    MYR {product.price.toFixed(2)}
-                  </span>
-                  <button className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors">
-                    <Eye className="h-4 w-4 mr-2" />
-                    <Link to={`/smart-catalog/${product.id}`}>View</Link>
-                  </button>
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <Link
+                    to={`/smart-catalog/${product._id}`}
+                    className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
+                  >
+                    <Eye className="h-5 w-5 text-gray-600" />
+                  </Link>
+                 
                 </div>
               </div>
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {product.name}
+                </h3>
+                <div className="flex justify-between items-center">
+                  <span className="text-amber-500 font-semibold">
+                    RM {product.price.toFixed(2)}
+                  </span>
+                  <div className="text-sm text-gray-500">
+                    {product.category}
+                  </div>
+                </div>
+                <Link
+                  to={`/smart-catalog/${product._id}`}
+                  className="mt-4 w-full inline-flex items-center justify-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Details
+                </Link>
+              </div>
             </div>
-          ))}
-        </div>
-
-        {/* Pagination */}
-        <div className="flex justify-center gap-2">
-          {pageNumbers.map(number => (
-            <button
-              key={number}
-              onClick={() => paginate(number)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === number
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-              }`}
-            >
-              {number}
-            </button>
           ))}
         </div>
       </div>
