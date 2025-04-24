@@ -32,7 +32,7 @@ export function QuotationsPage() {
 
   const fetchQuotations = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/quotations');
+      const response = await axios.get('http://139.59.76.86:5000/api/quotations');
       setQuotations(response.data);
     } catch (error) {
       setMessage({
@@ -48,7 +48,7 @@ export function QuotationsPage() {
     if (!window.confirm('Are you sure you want to delete this quotation?')) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/quotations/${id}`);
+      await axios.delete(`http://139.59.76.86:5000/api/quotations/${id}`);
       setMessage({
         text: 'Quotation deleted successfully',
         type: 'success'

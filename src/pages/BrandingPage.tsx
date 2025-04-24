@@ -35,7 +35,7 @@ export function BrandingPage() {
       formData.append('primaryColor', colors.primaryColor);
       formData.append('secondaryColor', colors.secondaryColor);
 
-      const result = await axios.put('http://localhost:5000/api/users/branding', formData, {
+      const result = await axios.put('http://139.59.76.86:5000/api/users/branding', formData, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'multipart/form-data'
@@ -65,7 +65,7 @@ export function BrandingPage() {
   const handleColorSave = async () => {
     try {
       setIsSubmitting(true);
-      const response = await axios.put('http://localhost:5000/api/users/branding', colors, {
+      const response = await axios.put('http://139.59.76.86:5000/api/users/branding', colors, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
