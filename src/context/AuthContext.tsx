@@ -16,8 +16,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  company: string;
-  phone: string;
+  token:string;
   avatar?: string;
 }
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,11 +41,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         //setResponseMessage('Registration successful!');
-        alert('Login successful!')
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userId', data._id);
+//alert('Login successful!')
+        localStorage.setItem('token', 'sdvfvsdhgfsdhfvgshfv');
+        localStorage.setItem('userId', data.id);
         localStorage.setItem('email', data.email);
-        setUser(data.user);
+        setUser(data);
         setIsAuthenticated(true);
       } else {
         const errorData = await response.json();
@@ -120,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
- // const token = localStorage.getItem('token');
+  
    if (context === undefined ) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

@@ -56,7 +56,7 @@ export function Sidebar() {
 
         <NavSection title="MANAGE">
           <NavItem icon={<ClipboardList />} text="Quotations" to="/quotations" />
-          <NavItem icon={<FileText />} text="Orders" to="/orders" />
+          {/* <NavItem icon={<FileText />} text="Orders" to="/orders" /> */}
         </NavSection>
 
         <NavSection title="ACCOUNT">

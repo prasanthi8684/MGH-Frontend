@@ -1,36 +1,88 @@
-import React, { useState } from 'react';
-import { Palette, Upload } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Palette } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Toast } from '../components/ui/Toast';
 import { UploadButton } from '../components/ui/UploadButton';
+import axios from 'axios';
 
 export function BrandingPage() {
+  const { user } = useAuth();
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [logo, setLogo] = useState<string | null>(null);
   const [colors, setColors] = useState({
-    primary: '#FF0000',
-    secondary: '#000000'
+    primaryColor: '#FF0000',
+    secondaryColor: '#000000'
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (user?.branding) {
+      setLogo(user.branding.logo || null);
+      setColors({
+        primaryColor: user.branding.primaryColor,
+        secondaryColor: user.branding.secondaryColor
+      });
+    }
+  }, [user]);
 
   const handleLogoUpload = async (image: string) => {
     try {
-      // Handle logo upload to server
-      setLogo(image);
+      setIsSubmitting(true);
+      const formData = new FormData();
+      const response = await fetch(image);
+      const blob = await response.blob();
+      formData.append('logo', blob);
+      formData.append('primaryColor', colors.primaryColor);
+      formData.append('secondaryColor', colors.secondaryColor);
+
+      const result = await axios.put('http://localhost:5000/api/users/branding', formData, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setLogo(result.data.logo);
       setMessage({
-        text: 'Logo uploaded successfully',
+        text: 'Branding updated successfully',
         type: 'success'
       });
     } catch (error) {
       setMessage({
-        text: 'Failed to upload logo',
+        text: 'Failed to update branding',
         type: 'error'
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleColorChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setColors(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleColorSave = async () => {
+    try {
+      setIsSubmitting(true);
+      const response = await axios.put('http://localhost:5000/api/users/branding', colors, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      setMessage({
+        text: 'Brand colors updated successfully',
+        type: 'success'
+      });
+    } catch (error) {
+      setMessage({
+        text: 'Failed to update brand colors',
+        type: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -64,12 +116,11 @@ export function BrandingPage() {
                   alt="Company Logo"
                   className="max-w-full h-auto rounded-lg"
                 />
-                <button
-                  onClick={() => setLogo(null)}
-                  className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
-                >
-                  <Upload className="h-4 w-4" />
-                </button>
+                <UploadButton
+                  onUpload={handleLogoUpload}
+                  aspectRatio={2}
+                  maxSize={{ width: 800, height: 400 }}
+                />
               </div>
             ) : (
               <UploadButton
@@ -97,14 +148,14 @@ export function BrandingPage() {
               <div className="flex items-center space-x-2">
                 <input
                   type="color"
-                  name="primary"
-                  value={colors.primary}
+                  name="primaryColor"
+                  value={colors.primaryColor}
                   onChange={handleColorChange}
                   className="h-10 w-20"
                 />
                 <input
                   type="text"
-                  value={colors.primary}
+                  value={colors.primaryColor}
                   onChange={handleColorChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
                 />
@@ -118,19 +169,27 @@ export function BrandingPage() {
               <div className="flex items-center space-x-2">
                 <input
                   type="color"
-                  name="secondary"
-                  value={colors.secondary}
+                  name="secondaryColor"
+                  value={colors.secondaryColor}
                   onChange={handleColorChange}
                   className="h-10 w-20"
                 />
                 <input
                   type="text"
-                  value={colors.secondary}
+                  value={colors.secondaryColor}
                   onChange={handleColorChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
                 />
               </div>
             </div>
+
+            <button
+              onClick={handleColorSave}
+              disabled={isSubmitting}
+              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Saving...' : 'Save Colors'}
+            </button>
           </div>
         </div>
       </div>
