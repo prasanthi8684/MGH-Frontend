@@ -58,7 +58,7 @@ export function ProfilePage() {
         formDataToSend.append('avatar', selectedAvatar);
       }
 
-      const response = await axios.put('http://localhost:5000/api/users/profile', formDataToSend, {
+      const response = await axios.put('http://139.59.76.86:5000/api/users/profile', formDataToSend, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'multipart/form-data'

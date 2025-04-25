@@ -102,7 +102,7 @@ export function ProductDetailPage() {
         status: 'draft'
       };
 
-      await axios.post('http://localhost:5000/api/quotations', quotationData);
+      await axios.post('http://139.59.76.86:5000/api/quotations', quotationData);
       
       setMessage({
         text: 'Quotation created successfully',
