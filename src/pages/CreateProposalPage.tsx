@@ -78,7 +78,6 @@ export function CreateProposalPage() {
     try {
       setUploadingImage(prev => ({ ...prev, [index]: true }));
 
-      // Validate file size
       if (file.size > 5 * 1024 * 1024) {
         setMessage({
           text: 'Image size must be less than 5MB',
@@ -91,18 +90,11 @@ export function CreateProposalPage() {
       formDataToSend.append('image', file);
 
       const response = await axios.post(
-        'http://139.59.76.86:5000/api/upload',
+        'http://localhost:5000/api/upload',
         formDataToSend,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
       );
-
-      if (response.data.imageUrl) {
-        updateProduct(index, 'image', response.data.imageUrl);
+      if (response.data.imageUrls) {
+        updateProduct(index, 'image', response.data.imageUrls);
       }
     } catch (error: any) {
       setMessage({
@@ -127,7 +119,7 @@ export function CreateProposalPage() {
       const totalAmount = formData.products.reduce((sum, product) => sum + product.totalPrice, 0);
       
       const response = await axios.post(
-        'http://139.59.76.86:5000/api/proposals',
+        'http://localhost:5000/api/proposals',
         {
           ...formData,
           status: isDraft ? 'draft' : 'sent',
