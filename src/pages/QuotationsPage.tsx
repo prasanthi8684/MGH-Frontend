@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ClipboardList, Eye, Trash2, Download } from 'lucide-react';
+import { ClipboardList, Eye, Trash2, Download, Edit2, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Toast } from '../components/ui/Toast';
 
@@ -15,16 +16,19 @@ interface Quotation {
     quantity: number;
     unitPrice: number;
     totalPrice: number;
-    images: string[];
+    image: string;
   }[];
   totalAmount: number;
   createdAt: string;
 }
 
 export function QuotationsPage() {
+  const navigate = useNavigate();
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchQuotations();
@@ -32,7 +36,11 @@ export function QuotationsPage() {
 
   const fetchQuotations = async () => {
     try {
-      const response = await axios.get('http://139.59.76.86:5000/api/quotations');
+      const response = await axios.get('http://139.59.76.86:5000/api/quotations', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       setQuotations(response.data);
     } catch (error) {
       setMessage({
@@ -48,18 +56,58 @@ export function QuotationsPage() {
     if (!window.confirm('Are you sure you want to delete this quotation?')) return;
 
     try {
-      await axios.delete(`http://139.59.76.86:5000/api/quotations/${id}`);
+      setDeletingId(id);
+      await axios.delete(`http://139.59.76.86:5000/api/quotations/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       setMessage({
         text: 'Quotation deleted successfully',
         type: 'success'
       });
-      fetchQuotations();
+      setQuotations(prev => prev.filter(q => q._id !== id));
     } catch (error) {
       setMessage({
         text: 'Failed to delete quotation',
         type: 'error'
       });
+    } finally {
+      setDeletingId(null);
     }
+  };
+
+  const handleDownload = async (id: string) => {
+    try {
+      setDownloadingId(id);
+      const response = await axios.get(`http://139.59.76.86:5000/api/quotations/${id}/pdf`, {
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `quotation-${id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      setMessage({
+        text: 'Failed to download quotation',
+        type: 'error'
+      });
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const handleEdit = (id: string) => {
+    navigate(`/quotations/edit/${id}`);
   };
 
   const getStatusColor = (status: Quotation['status']) => {
@@ -80,7 +128,7 @@ export function QuotationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+        <Loader2 className="h-8 w-8 animate-spin text-red-600" />
       </div>
     );
   }
@@ -144,24 +192,36 @@ export function QuotationsPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end space-x-3">
-                      <button 
+                      {/* <button 
+                        onClick={() => handleEdit(quotation._id)}
                         className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                        title="View Details"
+                        title="Edit"
                       >
-                        <Eye className="h-5 w-5" />
-                      </button>
+                        <Edit2 className="h-5 w-5" />
+                      </button> */}
                       <button 
-                        className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                        onClick={() => handleDownload(quotation._id)}
+                        disabled={downloadingId === quotation._id}
+                        className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 disabled:opacity-50"
                         title="Download PDF"
                       >
-                        <Download className="h-5 w-5" />
+                        {downloadingId === quotation._id ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Download className="h-5 w-5" />
+                        )}
                       </button>
                       <button 
                         onClick={() => handleDelete(quotation._id)}
-                        className="p-2 text-gray-400 hover:text-red-500"
+                        disabled={deletingId === quotation._id}
+                        className="p-2 text-gray-400 hover:text-red-500 disabled:opacity-50"
                         title="Delete"
                       >
-                        <Trash2 className="h-5 w-5" />
+                        {deletingId === quotation._id ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-5 w-5" />
+                        )}
                       </button>
                     </div>
                   </td>

@@ -181,43 +181,33 @@ export function Register() {
               </div>
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="company" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Company
               </label>
-              <select
+              <input
                 id="company"
                 name="company"
+                type="text"
                 required
                 value={formData.company}
-                onChange={handleSelectChange}
+                onChange={handleChange}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              >
-                <option value="" disabled>
-                  Select an option
-                </option>
-                <option value="MessengerCo">MessengerCo</option>
-                <option value="MessengerCo3">MessengerCo2</option>
-                <option value="MessengerCo3">MessengerCo3</option>
-              </select>
+              />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="jobRole" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 JobRole
               </label>
-              <select
+              <input
                 id="jobRole"
                 name="jobRole"
+                type="text"
                 required
                 value={formData.jobRole}
-                onChange={handleSelectChange}
+                onChange={handleChange}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              >
-                <option value="" disabled>
-                  Select an option
-                </option>
-                <option value="MD">Managing Director</option>
-                <option value="CEO">CEO</option>
-              </select>
+              />
+             
             </div>
             <div className="flex items-center">
               <input

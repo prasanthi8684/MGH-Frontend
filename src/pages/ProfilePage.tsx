@@ -1,41 +1,74 @@
 import React, { useState, useEffect } from 'react';
-import { User, Camera } from 'lucide-react';
+import { User, Camera, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Toast } from '../components/ui/Toast';
 import axios from 'axios';
 
+interface UserProfile {
+  name: string;
+  email: string;
+  company: string;
+  phone: string;
+  avatar?: string;
+  _id?: string;
+}
+
 export function ProfilePage() {
   const { user } = useAuth();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<UserProfile>({
     name: '',
     email: '',
     company: '',
-    phone: '',
-    id:'',
+    phone: ''
   });
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const data = {_id :localStorage.getItem('userId') }
+      const response = await axios.post('http://139.59.76.86:5000/api/users/profile',data);
+
+      const userData = response.data;
       setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        company: user.company || '',
-        phone: user.phone || '',
-        id:localStorage.getItem('userId') || '',
+        name: userData.firstname || '',
+        email: userData.email || '',
+        company: userData.company || '',
+        phone: userData.phonenumber || '',
+        _id: localStorage.getItem('userId') || ''
       });
-      if (user.avatar) {
-        setAvatarPreview(user.avatar);
+
+      if (userData.avatar) {
+        setAvatarPreview(userData.avatar);
       }
+    } catch (error) {
+      setMessage({
+        text: 'Failed to fetch profile data',
+        type: 'error'
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [user]);
+  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        setMessage({
+          text: 'Image size must be less than 5MB',
+          type: 'error'
+        });
+        return;
+      }
+
       setSelectedAvatar(file);
       setAvatarPreview(URL.createObjectURL(file));
     }
@@ -47,28 +80,34 @@ export function ProfilePage() {
 
     try {
       const formDataToSend = new FormData();
-      const userId  = localStorage.getItem('userId')
       Object.entries(formData).forEach(([key, value]) => {
         formDataToSend.append(key, value);
       });
-      if (userId) {
-        formDataToSend.append('userId', userId);
-      }
+
       if (selectedAvatar) {
         formDataToSend.append('avatar', selectedAvatar);
       }
 
-      const response = await axios.put('http://139.59.76.86:5000/api/users/profile', formDataToSend, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'multipart/form-data'
+      const response = await axios.put(
+        'http://139.59.76.86:5000/api/users/profile',
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data'
+          }
         }
-      });
+      );
 
       setMessage({
         text: 'Profile updated successfully',
         type: 'success'
       });
+
+      // Update local user data
+      if (response.data.avatar) {
+        setAvatarPreview(response.data.avatar);
+      }
     } catch (error) {
       setMessage({
         text: 'Failed to update profile',
@@ -78,6 +117,14 @@ export function ProfilePage() {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -123,10 +170,10 @@ export function ProfilePage() {
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {formData.name}
+                {formData.name || 'Your Name'}
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {formData.email}
+                {formData.email || 'your.email@example.com'}
               </p>
             </div>
           </div>
@@ -140,7 +187,8 @@ export function ProfilePage() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
               />
             </div>
 
@@ -152,7 +200,8 @@ export function ProfilePage() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
               />
             </div>
 
@@ -164,7 +213,7 @@ export function ProfilePage() {
                 type="text"
                 value={formData.company}
                 onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
 
@@ -176,7 +225,7 @@ export function ProfilePage() {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
           </div>
@@ -185,9 +234,16 @@ export function ProfilePage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
             </button>
           </div>
         </form>

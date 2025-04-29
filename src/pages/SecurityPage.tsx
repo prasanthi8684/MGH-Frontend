@@ -1,43 +1,69 @@
 import React, { useState } from 'react';
-import { Shield, Key, Lock } from 'lucide-react';
+import { Shield, Key, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Toast } from '../components/ui/Toast';
+import axios from 'axios';
 
 export function SecurityPage() {
+  const { user } = useAuth();
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formData.newPassword !== formData.confirmPassword) {
+    // if (formData.newPassword !== formData.confirmPassword) {
+    //   setMessage({
+    //     text: 'New passwords do not match',
+    //     type: 'error'
+    //   });
+    //   return;
+    // }
+
+    if (formData.newPassword.length < 8) {
       setMessage({
-        text: 'New passwords do not match',
+        text: 'Password must be at least 8 characters long',
         type: 'error'
       });
       return;
     }
 
     try {
-      // Handle password change API call
+      setIsSubmitting(true);
+      await axios.put(
+        'http://139.59.76.86:5000/api/users/password',
+        {
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+          id:localStorage.getItem("userId")
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
       setMessage({
         text: 'Password updated successfully',
         type: 'success'
       });
+      
       setFormData({
         currentPassword: '',
         newPassword: '',
-        confirmPassword: ''
       });
-    } catch (error) {
+    } catch (error: any) {
       setMessage({
-        text: 'Failed to update password',
+        text: error.response?.data?.error || 'Failed to update password',
         type: 'error'
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -76,7 +102,7 @@ export function SecurityPage() {
                 type="password"
                 value={formData.currentPassword}
                 onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
                 required
               />
             </div>
@@ -89,29 +115,27 @@ export function SecurityPage() {
                 type="password"
                 value={formData.newPassword}
                 onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
                 required
+                minLength={8}
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
-                required
-              />
-            </div>
+           
 
             <button
               type="submit"
-              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              disabled={isSubmitting}
+              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              Update Password
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                  Updating...
+                </>
+              ) : (
+                'Update Password'
+              )}
             </button>
           </form>
         </div>

@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('userId', data.id);
         localStorage.setItem('email', data.email);
         setUser(data);
-        setIsAuthenticated(true);
+       // setIsAuthenticated(true);
       } else {
         const errorData = await response.json();
         setIsAuthenticated(false);

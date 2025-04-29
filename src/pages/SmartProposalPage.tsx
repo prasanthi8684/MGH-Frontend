@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FileSpreadsheet, Upload, Download, Trash2 } from 'lucide-react';
+import { FileSpreadsheet, Upload, Download, Trash2, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Toast } from '../components/ui/Toast';
 
 interface Proposal {
   _id: string;
@@ -16,6 +17,9 @@ export function SmartProposalPage() {
   const navigate = useNavigate();
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProposals();
@@ -23,19 +27,58 @@ export function SmartProposalPage() {
 
   const fetchProposals = async () => {
     try {
-      const response = await axios.get('http://139.59.76.86:5000/api/proposals');
+      const response = await axios.get('http://139.59.76.86:5000/api/proposals', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       setProposals(response.data);
     } catch (error) {
-      console.error('Error fetching proposals:', error);
+      setMessage({
+        text: 'Failed to fetch proposals',
+        type: 'error'
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this proposal?')) return;
+
+    try {
+      setDeletingId(id);
+      await axios.delete(`http://139.59.76.86:5000/api/proposals/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      setMessage({
+        text: 'Proposal deleted successfully',
+        type: 'success'
+      });
+      
+      // Update local state instead of refetching
+      setProposals(prev => prev.filter(proposal => proposal._id !== id));
+    } catch (error) {
+      setMessage({
+        text: 'Failed to delete proposal',
+        type: 'error'
+      });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const handleDownloadPDF = async (id: string) => {
     try {
+      setDownloadingId(id);
       const response = await axios.get(`http://139.59.76.86:5000/api/proposals/${id}/pdf`, {
-        responseType: 'blob'
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -45,8 +88,14 @@ export function SmartProposalPage() {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading PDF:', error);
+      setMessage({
+        text: 'Failed to download PDF',
+        type: 'error'
+      });
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -68,7 +117,7 @@ export function SmartProposalPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-400"></div>
+        <Loader2 className="h-8 w-8 animate-spin text-red-600" />
       </div>
     );
   }
@@ -90,6 +139,14 @@ export function SmartProposalPage() {
           Create New Proposal
         </button>
       </div>
+
+      {message && (
+        <Toast
+          message={message.text}
+          type={message.type}
+          onClose={() => setMessage(null)}
+        />
+      )}
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
         <div className="overflow-x-auto">
@@ -132,12 +189,27 @@ export function SmartProposalPage() {
                     <div className="flex items-center justify-end space-x-3">
                       <button 
                         onClick={() => handleDownloadPDF(proposal._id)}
-                        className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                        disabled={downloadingId === proposal._id}
+                        className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 disabled:opacity-50"
+                        title="Download PDF"
                       >
-                        <Download className="h-5 w-5" />
+                        {downloadingId === proposal._id ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Download className="h-5 w-5" />
+                        )}
                       </button>
-                      <button className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
-                        <Trash2 className="h-5 w-5" />
+                      <button 
+                        onClick={() => handleDelete(proposal._id)}
+                        disabled={deletingId === proposal._id}
+                        className="p-2 text-gray-400 hover:text-red-500 disabled:opacity-50"
+                        title="Delete"
+                      >
+                        {deletingId === proposal._id ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-5 w-5" />
+                        )}
                       </button>
                     </div>
                   </td>

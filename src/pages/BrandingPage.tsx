@@ -11,16 +11,18 @@ export function BrandingPage() {
   const [logo, setLogo] = useState<string | null>(null);
   const [colors, setColors] = useState({
     primaryColor: '#FF0000',
-    secondaryColor: '#000000'
+    secondaryColor: '#000000',
+    id:'',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const userId : any  = localStorage.getItem('userId');
   useEffect(() => {
     if (user?.branding) {
       setLogo(user.branding.logo || null);
       setColors({
         primaryColor: user.branding.primaryColor,
-        secondaryColor: user.branding.secondaryColor
+        secondaryColor: user.branding.secondaryColor,
+        id:userId,
       });
     }
   }, [user]);
@@ -28,19 +30,16 @@ export function BrandingPage() {
   const handleLogoUpload = async (image: string) => {
     try {
       setIsSubmitting(true);
+      const userId : any  = localStorage.getItem('userId');
       const formData = new FormData();
       const response = await fetch(image);
       const blob = await response.blob();
       formData.append('logo', blob);
       formData.append('primaryColor', colors.primaryColor);
+      formData.append('id', userId);
       formData.append('secondaryColor', colors.secondaryColor);
 
-      const result = await axios.put('http://139.59.76.86:5000/api/users/branding', formData, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const result = await axios.put('http://139.59.76.86:5000/api/users/branding', formData);
 
       setLogo(result.data.logo);
       setMessage({
@@ -59,17 +58,15 @@ export function BrandingPage() {
 
   const handleColorChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
     setColors(prev => ({ ...prev, [name]: value }));
   };
 
   const handleColorSave = async () => {
     try {
       setIsSubmitting(true);
-      const response = await axios.put('http://139.59.76.86:5000/api/users/branding', colors, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      colors.id = userId;
+      const response = await axios.put('http://139.59.76.86:5000/api/users/branding', colors);
 
       setMessage({
         text: 'Brand colors updated successfully',

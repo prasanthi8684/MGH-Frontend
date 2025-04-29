@@ -1,8 +1,9 @@
 import React from 'react';
-import { Sun, Moon, Search, LogOut } from 'lucide-react';
+import { Sun, Moon, LogOut } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { SearchBar } from './SearchBar';
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -22,16 +23,7 @@ export function Header() {
             <div className="text-2xl font-bold text-red-600">MHG</div>
           </div>
           
-          <div className="flex-1 max-w-2xl mx-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search Products and Gifts Instantly..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-            </div>
-          </div>
+          <SearchBar />
 
           <div className="flex items-center space-x-4">
             <button

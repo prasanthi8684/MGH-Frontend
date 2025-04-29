@@ -1,83 +1,88 @@
-import React, { useState } from 'react';
-import { Gift, Sparkles, AlertTriangle } from 'lucide-react';
-import { UploadButton } from '../components/ui/UploadButton';
+import React, { useState, useEffect } from 'react';
+import { Gift, Sparkles, AlertTriangle, Eye, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { Toast } from '../components/ui/Toast';
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 
-interface GiftOption {
-  id: string;
-  title: string;
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
   price: number;
-  image: string;
-  items: string[];
+  images: string[];
+  category: string;
+  subcategory: string;
+}
+
+interface AIRecommendation {
+  suggestions: {
+    categories: string[];
+    keywords: string[];
+    minPrice: number;
+    maxPrice: number;
+  };
+  products: Product[];
 }
 
 export function SmartGiftingPage() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [budget, setBudget] = useState<string>('130');
   const [quantity, setQuantity] = useState<string>('75');
   const [prompt, setPrompt] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [logo, setLogo] = useState<string | null>(null);
-
-  const giftOptions: GiftOption[] = [
-    {
-      id: '1',
-      title: 'Glass Cup Gift Set',
-      price: 19.00,
-      image: 'https://images.unsplash.com/photo-1577937927133-66ef87ce9e02?auto=format&fit=crop&q=80&w=400',
-      items: [
-        'Paper Bag with Window + Gift Tag And Ribbon',
-        'Glass cup with straw and brown PU leatherette sleeve and Logo'
-      ]
-    },
-    {
-      id: '2',
-      title: 'Mailer Gift Box Set C',
-      price: 33.20,
-      image: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=400',
-      items: [
-        'Mailer Gift Box + Gift Tag2',
-        'Eco notebook with Paper Pen3',
-        'Stainless Steel Mug4',
-        'Mini Cadbury 3 pcs'
-      ]
-    },
-    {
-      id: '3',
-      title: 'Lunch Box Gift Set',
-      price: 61.00,
-      image: 'https://images.unsplash.com/photo-1621844061203-3f31a2a7d6ad?auto=format&fit=crop&q=80&w=400',
-      items: [
-        'LED Display Vacuum Thermal Flask - Sky Blue2',
-        'Home Expert Multicolor 3 Tier 304 Stainless Steel Lunch Box3',
-        'Paper Bag with Window for Doorgift 4',
-        'Greeting Card'
-      ]
-    }
-  ];
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setShowResults(true);
-      setIsLoading(false);
-    }, 1500);
-  };
+    setShowResults(false);
+    
+    try {
+      const response = await axios.get('http://139.59.76.86:5000/api/smart-gifting/recommendations', {
+        params: {
+          prompt,
+          budget,
+          quantity
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
 
-  const handleLogoUpload = (croppedImage: string) => {
-    setLogo(croppedImage);
+      const data: AIRecommendation = response.data;
+      setProducts(data.products);
+      setShowResults(true);
+
+      if (data.products.length === 0) {
+        setMessage({
+          text: 'No matching products found. Try adjusting your criteria.',
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      setMessage({
+        text: 'Error getting recommendations. Please try again.',
+        type: 'error'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {message && (
+        <Toast
+          message={message.text}
+          type={message.type}
+          onClose={() => setMessage(null)}
+        />
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Smart Gifting</h1>
-        <UploadButton 
-  onUpload={(croppedImage) => handleLogoUpload(croppedImage)}
-  aspectRatio={2}
-  maxSize={{ width: 800, height: 400 }}
-/>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
@@ -96,13 +101,15 @@ export function SmartGiftingPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Budget
+                    Budget (RM)
                   </label>
                   <input
                     type="number"
                     value={budget}
                     onChange={(e) => setBudget(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    min="1"
+                    required
                   />
                 </div>
                 <div>
@@ -114,6 +121,8 @@ export function SmartGiftingPage() {
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    min="1"
+                    required
                   />
                 </div>
                 <div>
@@ -133,19 +142,21 @@ export function SmartGiftingPage() {
 
               <div>
                 <div className="relative">
-                  <input
-                    type="text"
+                  <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="suggest gift ideas for my company annual dinner .."
+                    placeholder="Describe your gift requirements (e.g., corporate gifts for annual dinner, eco-friendly promotional items...)"
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    rows={3}
+                    required
                   />
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-amber-400 hover:bg-amber-500 rounded-lg transition-colors"
+                    className="absolute right-2 bottom-2 p-2 bg-amber-400 hover:bg-amber-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <AlertTriangle className="h-5 w-5 text-white" />
+
+                  <MagnifyingGlassIcon className="h-6 w-6 text-white" />
                   </button>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
@@ -166,7 +177,7 @@ export function SmartGiftingPage() {
         <div className="flex-1">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
             <h2 className="text-xl font-semibold text-amber-400 mb-4">
-              Curated Gift Result
+              Curated Gift Results
             </h2>
             
             {isLoading ? (
@@ -174,52 +185,47 @@ export function SmartGiftingPage() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-400"></div>
               </div>
             ) : showResults ? (
-              <div className="space-y-6">
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Select your preferred gifting options below:
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                  Or you can try different options by re-generating or ask the model for a new suggestion
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {giftOptions.map(option => (
-                    <div key={option.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              products.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {products.map(product => (
+                    <div key={product._id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                       <img
-                        src={option.image}
-                        alt={option.title}
+                        src={product.images[0] || 'https://via.placeholder.com/400'}
+                        alt={product.name}
                         className="w-full h-48 object-cover rounded-lg mb-4"
                       />
                       <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                        {option.title}
+                        {product.name}
                       </h3>
-                      <ul className="text-sm text-gray-600 dark:text-gray-300 mb-4 list-disc pl-4">
-                        {option.items.map((item, index) => (
-                          <li key={index}>{item}</li>
-                        ))}
-                      </ul>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                        {product.description}
+                      </p>
                       <div className="flex items-center justify-between">
                         <span className="text-amber-400 font-semibold">
-                          MYR {option.price.toFixed(2)}
+                          RM {product.price.toFixed(2)}
                         </span>
+                        <Link
+                          to={`/smart-gifting/${product._id}`}
+                          className="flex items-center text-sm text-amber-500 hover:text-amber-600"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View Details
+                        </Link>
                       </div>
                     </div>
                   ))}
                 </div>
-
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  <button className="w-full py-2 px-4 bg-amber-400 hover:bg-amber-500 text-white rounded-lg font-medium transition-colors">
-                    Instant Quotation
-                  </button>
-                  <button className="w-full py-2 px-4 border border-amber-400 text-amber-400 hover:bg-amber-50 rounded-lg font-medium transition-colors">
-                    Re-generate
-                  </button>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+                  <Gift className="h-12 w-12 mb-4 opacity-50" />
+                  <p>No matching products found</p>
+                  <p className="text-sm mt-2">Try adjusting your search criteria</p>
                 </div>
-              </div>
+              )
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
                 <Gift className="h-12 w-12 mb-4 opacity-50" />
-                <p>Your curated gift options appear here</p>
+                <p>Your curated gift options will appear here</p>
               </div>
             )}
           </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, Image as ImageIcon, X } from 'lucide-react';
 import axios from 'axios';
+import { Toast } from '../../components/ui/Toast';
 
 interface Product {
   _id: string;
@@ -41,7 +42,7 @@ export function ProductManagement() {
   });
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -53,16 +54,19 @@ export function ProductManagement() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [productsRes, categoriesRes, subcategoriesRes] = await Promise.all([
-        axios.get('http://139.59.76.86:5000/api/admin/products'),
-        axios.get('http://139.59.76.86:5000/api/admin/categories'),
-        axios.get('http://139.59.76.86:5000/api/admin/subcategories')
+        axios.get('http://139.59.76.86:5000/api/admin/products', { headers }),
+        axios.get('http://139.59.76.86:5000/api/admin/categories', { headers }),
+        axios.get('http://139.59.76.86:5000/api/admin/subcategories', { headers })
       ]);
 
       setProducts(productsRes.data);
       setCategories(categoriesRes.data);
       setSubcategories(subcategoriesRes.data);
     } catch (error) {
-      setError('Error fetching data');
+      setMessage({
+        text: 'Error fetching data',
+        type: 'error'
+      });
     } finally {
       setLoading(false);
     }
@@ -85,7 +89,6 @@ export function ProductManagement() {
       images: prev.images.filter((_, i) => i !== index)
     }));
     
-    // Revoke the URL to prevent memory leaks
     URL.revokeObjectURL(imagePreviewUrls[index]);
     setImagePreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
@@ -94,23 +97,24 @@ export function ProductManagement() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('adminToken');
+      const formDataToSend = new FormData();
+
+      // Append product data
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key !== 'images') {
+          formDataToSend.append(key, value.toString());
+        }
+      });
+
+      // Append images
+      formData.images.forEach(file => {
+        formDataToSend.append('images', file);
+      });
+
       const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
       };
-
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === 'images') {
-          if (Array.isArray(value)) {
-              value.forEach(file => {
-                formDataToSend.append('images', file);
-              });
-            }
-      } else {
-        formDataToSend.append(key, value.toString());
-      }
-      });
 
       if (selectedProduct) {
         await axios.put(
@@ -118,8 +122,16 @@ export function ProductManagement() {
           formDataToSend,
           { headers }
         );
+        setMessage({
+          text: 'Product updated successfully',
+          type: 'success'
+        });
       } else {
         await axios.post('http://139.59.76.86:5000/api/admin/products', formDataToSend, { headers });
+        setMessage({
+          text: 'Product created successfully',
+          type: 'success'
+        });
       }
 
       setIsModalOpen(false);
@@ -136,7 +148,10 @@ export function ProductManagement() {
       setImagePreviewUrls([]);
       fetchData();
     } catch (error) {
-      setError('Error saving product');
+      setMessage({
+        text: 'Error saving product',
+        type: 'error'
+      });
     }
   };
 
@@ -148,9 +163,16 @@ export function ProductManagement() {
       await axios.delete(`http://139.59.76.86:5000/api/admin/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      setMessage({
+        text: 'Product deleted successfully',
+        type: 'success'
+      });
       fetchData();
     } catch (error) {
-      setError('Error deleting product');
+      setMessage({
+        text: 'Error deleting product',
+        type: 'error'
+      });
     }
   };
 
@@ -169,7 +191,6 @@ export function ProductManagement() {
     setIsModalOpen(true);
   };
 
-  // Cleanup preview URLs when component unmounts
   useEffect(() => {
     return () => {
       imagePreviewUrls.forEach(url => URL.revokeObjectURL(url));
@@ -178,7 +199,7 @@ export function ProductManagement() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
       </div>
     );
@@ -186,6 +207,14 @@ export function ProductManagement() {
 
   return (
     <div className="p-6">
+      {message && (
+        <Toast
+          message={message.text}
+          type={message.type}
+          onClose={() => setMessage(null)}
+        />
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Product Management</h1>
         <button
@@ -209,12 +238,6 @@ export function ProductManagement() {
           Add Product
         </button>
       </div>
-
-      {error && (
-        <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-6">
-          {error}
-        </div>
-      )}
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
@@ -287,7 +310,7 @@ export function ProductManagement() {
 
       {/* Product Form Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
             <h2 className="text-xl font-bold mb-6">
               {selectedProduct ? 'Edit Product' : 'Add New Product'}
@@ -339,7 +362,7 @@ export function ProductManagement() {
                   >
                     <option value="">Select Subcategory</option>
                     {subcategories
-                        .map((subcategory) => (
+                      .map((subcategory) => (
                         <option key={subcategory._id} value={subcategory.name}>
                           {subcategory.name}
                         </option>
@@ -428,7 +451,7 @@ export function ProductManagement() {
                         </label>
                         <p className="pl-1">or drag and drop</p>
                       </div>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
                     </div>
                   </div>
                 </div>
