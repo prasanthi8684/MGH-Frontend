@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Toast } from '../ui/Toast';
 export function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -69,7 +69,12 @@ export function Register() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
         <div className="text-center">
-          <div className="text-3xl font-bold text-red-600 mb-6">MHG</div>
+          <div className="text-3xl font-bold text-red-600 mb-6"><Link
+                            to="/"
+                            className="text-3xl text-red-600 hover:text-red-500 font-medium"
+                          >
+                            MHG
+                          </Link></div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Create your account
           </h2>

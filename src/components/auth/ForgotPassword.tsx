@@ -52,7 +52,13 @@ export function ForgotPassword() {
       
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
         <div className="text-center">
-          <div className="text-3xl font-bold text-red-600 mb-6">MHG</div>
+          <div className="text-3xl font-bold text-red-600 mb-6"><Link
+                            to="/"
+                            className="text-3xl text-red-600 hover:text-red-500 font-medium"
+                          >
+                            MHG
+                          </Link>
+                          </div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Reset your password
           </h2>

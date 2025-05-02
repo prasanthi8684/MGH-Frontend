@@ -6,18 +6,18 @@ import axios from 'axios';
 
 interface UserProfile {
   name: string;
-  email: string;
+  bussinessemail: string;
   company: string;
   phone: string;
   avatar?: string;
-  _id?: string;
+  id?: string;
 }
 
 export function ProfilePage() {
   const { user } = useAuth();
   const [formData, setFormData] = useState<UserProfile>({
     name: '',
-    email: '',
+    bussinessemail: '',
     company: '',
     phone: ''
   });
@@ -33,16 +33,16 @@ export function ProfilePage() {
 
   const fetchUserProfile = async () => {
     try {
-      const data = {_id :localStorage.getItem('userId') }
+      const data = {id :localStorage.getItem('userId') }
       const response = await axios.post('http://139.59.76.86:5000/api/users/profile',data);
 
       const userData = response.data;
       setFormData({
         name: userData.firstname || '',
-        email: userData.email || '',
+        bussinessemail: userData.bussinessemail || '',
         company: userData.company || '',
         phone: userData.phonenumber || '',
-        _id: localStorage.getItem('userId') || ''
+        id: localStorage.getItem('userId') || ''
       });
 
       if (userData.avatar) {
@@ -93,7 +93,6 @@ export function ProfilePage() {
         formDataToSend,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'multipart/form-data'
           }
         }
@@ -173,7 +172,7 @@ export function ProfilePage() {
                 {formData.name || 'Your Name'}
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {formData.email || 'your.email@example.com'}
+                {formData.bussinessemail || 'your.email@example.com'}
               </p>
             </div>
           </div>
@@ -197,11 +196,12 @@ export function ProfilePage() {
                 Email
               </label>
               <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                type="bussinessemail"
+                value={formData.bussinessemail}
+                onChange={(e) => setFormData({ ...formData, bussinessemail: e.target.value })}
+                className="disabled:bg-gray-100 dark:disabled:bg-gray-800 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled"
                 required
+                disabled
               />
             </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams, Link } from 'react-router-dom';
 import { Toast } from '../ui/Toast';
 import { useAuth } from '../../context/AuthContext';
 
@@ -100,7 +100,12 @@ export function ResetPassword() {
       
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
         <div className="text-center">
-          <div className="text-3xl font-bold text-red-600 mb-6">MHG</div>
+          <div className="text-3xl font-bold text-red-600 mb-6"><Link
+                            to="/"
+                            className="text-3xl text-red-600 hover:text-red-500 font-medium"
+                          >
+                            MHG
+                          </Link></div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Reset your password
           </h2>

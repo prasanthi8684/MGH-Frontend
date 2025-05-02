@@ -45,9 +45,10 @@ export function Sidebar() {
   return (
     <aside className="w-64 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-colors duration-200">
       <div className="h-full px-3 py-4">
+      <NavSection title="SHOP">
         <NavItem icon={<Home />} text="Home" to="/" />
         
-        <NavSection title="SHOP">
+        
           <NavItem icon={<Gift />} text="Smart Gifting" to="/smart-gifting" />
           <NavItem icon={<Package />} text="Smart Catalog" to="/smart-catalog" />
           <NavItem icon={<FileText />} text="Digital Gifting" to="/digital-gifting" />
@@ -63,7 +64,7 @@ export function Sidebar() {
           <NavItem icon={<User />} text="Profile" to="/profile" />
           <NavItem icon={<Palette />} text="Branding" to="/branding" />
           <NavItem icon={<Shield />} text="Security" to="/security" />
-          <NavItem icon={<Book />} text="Address Book" to="/address-book" />
+          {/* <NavItem icon={<Book />} text="Address Book" to="/address-book" /> */}
         </NavSection>
       </div>
     </aside>

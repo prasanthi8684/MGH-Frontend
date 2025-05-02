@@ -2,7 +2,7 @@ import React from 'react';
 import { Sun, Moon, LogOut } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SearchBar } from './SearchBar';
 
 export function Header() {
@@ -20,7 +20,12 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <div className="text-2xl font-bold text-red-600">MHG</div>
+            <Link
+                              to="/"
+                              className="text-3xl text-red-600 hover:text-red-500 font-medium"
+                            >
+                              MHG
+                            </Link>
           </div>
           
           <SearchBar />

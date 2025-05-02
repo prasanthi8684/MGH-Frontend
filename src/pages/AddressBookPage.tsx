@@ -39,11 +39,7 @@ export function AddressBookPage() {
     try {
       const userId = localStorage.getItem("userId")
       const data = {id:userId}
-      const response = await axios.get('http://139.59.76.86:5000/api/users/addresses', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await axios.post('http://139.59.76.86:5000/api/users/addresses',data);
       setAddresses(response.data);
     } catch (error) {
       setMessage({
