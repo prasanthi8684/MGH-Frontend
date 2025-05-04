@@ -24,6 +24,11 @@ interface SubCategory {
   name: string;
   category: string;
 }
+interface ValidationErrors {
+  price?: string;
+  quantity?: string;
+  images?: string;
+}
 
 export function ProductManagement() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -41,6 +46,7 @@ export function ProductManagement() {
     images: [] as File[]
   });
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -48,15 +54,51 @@ export function ProductManagement() {
     fetchData();
   }, []);
 
+  const validateForm = (): boolean => {
+    const errors: ValidationErrors = {};
+    let isValid = true;
+
+    // Price validation
+    if (formData.price <= 0) {
+      errors.price = 'Price must be greater than 0';
+      isValid = false;
+    }
+
+    // Quantity validation
+    if (formData.quantity < 0) {
+      errors.quantity = 'Quantity cannot be negative';
+      isValid = false;
+    }
+    if (!Number.isInteger(formData.quantity)) {
+      errors.quantity = 'Quantity must be a whole number';
+      isValid = false;
+    }
+    // Image validation
+    if (!selectedProduct && formData.images.length === 0) {
+      errors.images = 'At least one image is required';
+     
+      isValid = false;
+    }
+
+    // Image size validation
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (formData.images.some(file => file.size > maxSize)) {
+      errors.images = 'Each image must be less than 5MB';
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+    return isValid;
+  };
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('adminToken');
       const headers = { Authorization: `Bearer ${token}` };
 
       const [productsRes, categoriesRes, subcategoriesRes] = await Promise.all([
-        axios.get('http://139.59.76.86:5000/api/admin/products', { headers }),
-        axios.get('http://139.59.76.86:5000/api/admin/categories', { headers }),
-        axios.get('http://139.59.76.86:5000/api/admin/subcategories', { headers })
+        axios.get('http://localhost:5000/api/admin/products', { headers }),
+        axios.get('http://localhost:5000/api/admin/categories', { headers }),
+        axios.get('http://localhost:5000/api/admin/subcategories', { headers })
       ]);
 
       setProducts(productsRes.data);
@@ -75,6 +117,23 @@ export function ProductManagement() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
+      const invalidFiles = files.filter(file => !file.type.startsWith('image/'));
+      if (invalidFiles.length > 0) {
+        setMessage({
+          text: 'Only image files are allowed',
+          type: 'error'
+        });
+        return;
+      }
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const oversizedFiles = files.filter(file => file.size > maxSize);
+      if (oversizedFiles.length > 0) {
+        setMessage({
+          text: 'Each image must be less than 5MB',
+          type: 'error'
+        });
+        return;
+      }
       setFormData(prev => ({ ...prev, images: [...prev.images, ...files] }));
       
       // Create preview URLs for the new images
@@ -95,6 +154,9 @@ export function ProductManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     try {
       const token = localStorage.getItem('adminToken');
       const formDataToSend = new FormData();
@@ -118,7 +180,7 @@ export function ProductManagement() {
 
       if (selectedProduct) {
         await axios.put(
-          `http://139.59.76.86:5000/api/admin/products/${selectedProduct._id}`,
+          `http://localhost:5000/api/admin/products/${selectedProduct._id}`,
           formDataToSend,
           { headers }
         );
@@ -127,7 +189,7 @@ export function ProductManagement() {
           type: 'success'
         });
       } else {
-        await axios.post('http://139.59.76.86:5000/api/admin/products', formDataToSend, { headers });
+        await axios.post('http://localhost:5000/api/admin/products', formDataToSend, { headers });
         setMessage({
           text: 'Product created successfully',
           type: 'success'
@@ -160,7 +222,7 @@ export function ProductManagement() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://139.59.76.86:5000/api/admin/products/${id}`, {
+      await axios.delete(`http://localhost:5000/api/admin/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMessage({
@@ -265,7 +327,7 @@ export function ProductManagement() {
               <tr key={product._id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    {product.images[0] && (
+                    {product.images && product.images[0] && (
                       <img
                         src={product.images[0]}
                         alt={product.name}
@@ -434,7 +496,7 @@ export function ProductManagement() {
                       </div>
                     ))}
                   </div>
-
+                
                   <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                     <div className="space-y-1 text-center">
                       <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
@@ -443,10 +505,10 @@ export function ProductManagement() {
                           <span>Upload files</span>
                           <input
                             type="file"
-                            multiple
                             accept="image/*"
                             className="sr-only"
                             onChange={handleImageChange}
+                            required
                           />
                         </label>
                         <p className="pl-1">or drag and drop</p>

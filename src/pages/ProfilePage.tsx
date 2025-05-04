@@ -212,6 +212,7 @@ export function ProfilePage() {
               <input
                 type="text"
                 value={formData.company}
+                required
                 onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
@@ -224,6 +225,7 @@ export function ProfilePage() {
               <input
                 type="tel"
                 value={formData.phone}
+                required
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
               />

@@ -41,9 +41,7 @@ export function SearchBar() {
       setLoading(true);
       try {
         const response = await axios.get(`http://139.59.76.86:5000/api/search?q=${encodeURIComponent(query)}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+         
         });
         setResults(response.data);
         setShowResults(true);

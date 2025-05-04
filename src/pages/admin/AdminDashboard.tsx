@@ -22,13 +22,7 @@ export function AdminDashboard() {
               <span className="ml-2 text-xl font-bold text-gray-900">Admin Dashboard</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link
-                to="/admin/categories"
-                className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-amber-500"
-              >
-                <List className="h-5 w-5 mr-2" />
-                Categories
-              </Link>
+            
               <button
                 onClick={handleLogout}
                 className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-red-500"
