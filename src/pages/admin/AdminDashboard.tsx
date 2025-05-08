@@ -3,6 +3,7 @@ import { Package, List, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ProductManagement } from './ProductManagement';
 
+
 export function AdminDashboard() {
   const navigate = useNavigate();
 

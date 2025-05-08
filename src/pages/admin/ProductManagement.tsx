@@ -335,8 +335,8 @@ export function ProductManagement() {
                       />
                     )}
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                      <div className="text-sm text-gray-500">{product.description}</div>
+                      <div className="text-sm font-medium text-gray-900 ">{product.name}</div>
+                      
                     </div>
                   </div>
                 </td>

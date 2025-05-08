@@ -107,7 +107,7 @@ export function SmartCatalogPage() {
                 onChange={(e) => setSelectedSubcategory(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               >
-                <option value="">All Subcategories</option>
+                <option value="">All Categories</option>
                 {subcategories
                   .map((subcategory) => (
                     <option key={subcategory._id} value={subcategory.name}>
@@ -126,9 +126,9 @@ export function SmartCatalogPage() {
         )}
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-stretch">
           {products.map((product) => (
-            <div key={product._id} className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div key={product._id} className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col">
               <div className="aspect-square relative">
                 <img
                   src={product.images[0] || 'https://via.placeholder.com/400'}
@@ -146,24 +146,22 @@ export function SmartCatalogPage() {
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">
                   {product.name}
                 </h3>
                 <div className="flex justify-between items-center">
                   <span className="text-amber-500 font-semibold">
                     RM {product.price.toFixed(2)}
                   </span>
-                  <div className="text-sm text-gray-500">
-                    {product.category}
-                  </div>
+                  
                 </div>
-                <Link
+                {/* <Link
                   to={`/smart-catalog/${product._id}`}
                   className="mt-4 w-full inline-flex items-center justify-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   <Eye className="h-4 w-4 mr-2" />
                   View Details
-                </Link>
+                </Link> */}
               </div>
             </div>
           ))}

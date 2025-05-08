@@ -112,7 +112,7 @@ export function DigitalGiftingPage() {
                 onChange={(e) => setSelectedSubcategory(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               >
-                <option value="">All Subcategories</option>
+                <option value="">All Categories</option>
                 {subcategories
                   .map((subcategory) => (
                     <option key={subcategory._id} value={subcategory.name}>
