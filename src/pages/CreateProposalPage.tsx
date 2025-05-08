@@ -119,7 +119,7 @@ export function CreateProposalPage() {
       const totalAmount = formData.products.reduce((sum, product) => sum + product.totalPrice, 0);
       
       const response = await axios.post(
-        'http://localhost:5000/api/proposals',
+        'http://139.59.76.86:5000/api/proposals',
         {
           ...formData,
           status: isDraft ? 'draft' : 'sent',

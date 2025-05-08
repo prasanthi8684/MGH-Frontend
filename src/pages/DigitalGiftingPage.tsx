@@ -157,13 +157,13 @@ export function DigitalGiftingPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   {product.name}
                 </h3>
-                <Link
+                {/* <Link
                   to={`/digital-gifting/${product._id}`}
                   className="w-full flex items-center justify-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   <Eye className="h-4 w-4 mr-2" />
                   View Details
-                </Link>
+                </Link> */}
               </div>
             </div>
           ))}
