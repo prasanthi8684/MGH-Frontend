@@ -36,13 +36,13 @@ export function DigitalGiftingPage() {
   const fetchData = async () => {
     try {
       const [productsRes, subcategoriesRes] = await Promise.all([
-        axios.get('http://139.59.76.86:5000/api/admin/products', {
+        axios.get('http://143.198.212.38:5000/api/admin/products', {
           params: {
             category: 'digital-gifting',
             subcategory: selectedSubcategory || undefined
           }
         }),
-        axios.get('http://139.59.76.86:5000/api/admin/subcategories')
+        axios.get('http://143.198.212.38:5000/api/admin/subcategories')
       ]);
 
       setProducts(productsRes.data);

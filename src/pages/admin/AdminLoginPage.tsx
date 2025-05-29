@@ -18,7 +18,7 @@ export function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://139.59.76.86:5000/api/admin/login', formData);
+      const response = await axios.post('http://143.198.212.38:5000/api/admin/login', formData);
       localStorage.setItem('adminToken', response.data.token);
       navigate('/admin/dashboard');
     } catch (error) {

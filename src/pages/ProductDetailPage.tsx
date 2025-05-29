@@ -52,7 +52,7 @@ export function ProductDetailPage() {
 
   const fetchProduct = async () => {
     try {
-      const response = await axios.get(`http://139.59.76.86:5000/api/admin/products/${id}`);
+      const response = await axios.get(`http://143.198.212.38:5000/api/admin/products/${id}`);
       setProduct(response.data);
       if (response.data.images.length > 0) {
         setSelectedImage(response.data.images[0]);
@@ -102,7 +102,7 @@ export function ProductDetailPage() {
         status: 'draft'
       };
 
-      await axios.post('http://139.59.76.86:5000/api/quotations', quotationData);
+      await axios.post('http://143.198.212.38:5000/api/quotations', quotationData);
       
       setMessage({
         text: 'Quotation created successfully',

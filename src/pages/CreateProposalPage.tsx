@@ -90,7 +90,7 @@ export function CreateProposalPage() {
       formDataToSend.append('image', file);
 
       const response = await axios.post(
-        'http://139.59.76.86:5000/api/upload',
+        'http://143.198.212.38:5000/api/upload',
         formDataToSend,
       );
       if (response.data.imageUrls) {
@@ -119,7 +119,7 @@ export function CreateProposalPage() {
       const totalAmount = formData.products.reduce((sum, product) => sum + product.totalPrice, 0);
       
       const response = await axios.post(
-        'http://139.59.76.86:5000/api/proposals',
+        'http://143.198.212.38:5000/api/proposals',
         {
           ...formData,
           status: isDraft ? 'draft' : 'sent',

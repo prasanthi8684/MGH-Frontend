@@ -39,7 +39,7 @@ export function BrandingPage() {
       formData.append('id', userId);
       formData.append('secondaryColor', colors.secondaryColor);
 
-      const result = await axios.put('http://139.59.76.86:5000/api/users/branding', formData);
+      const result = await axios.put('http://143.198.212.38:5000/api/users/branding', formData);
 
       setLogo(result.data.logo);
       setMessage({
@@ -66,7 +66,7 @@ export function BrandingPage() {
     try {
       setIsSubmitting(true);
       colors.id = userId;
-      const response = await axios.put('http://139.59.76.86:5000/api/users/branding', colors);
+      const response = await axios.put('http://143.198.212.38:5000/api/users/branding', colors);
 
       setMessage({
         text: 'Brand colors updated successfully',

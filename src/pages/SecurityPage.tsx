@@ -35,7 +35,7 @@ export function SecurityPage() {
     try {
       setIsSubmitting(true);
       await axios.put(
-        'http://139.59.76.86:5000/api/users/password',
+        'http://143.198.212.38:5000/api/users/password',
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,

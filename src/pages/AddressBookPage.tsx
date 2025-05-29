@@ -39,7 +39,7 @@ export function AddressBookPage() {
     try {
       const userId = localStorage.getItem("userId")
       const data = {id:userId}
-      const response = await axios.post('http://139.59.76.86:5000/api/users/addresses',data);
+      const response = await axios.post('http://143.198.212.38:5000/api/users/addresses',data);
       setAddresses(response.data);
     } catch (error) {
       setMessage({
@@ -62,12 +62,12 @@ export function AddressBookPage() {
 
       if (selectedAddress) {
         await axios.put(
-          `http://139.59.76.86:5000/api/users/addresses/${selectedAddress._id}`,
+          `http://143.198.212.38:5000/api/users/addresses/${selectedAddress._id}`,
           formData,
           { headers }
         );
       } else {
-        await axios.post('http://139.59.76.86:5000/api/users/addresses', formData, { headers });
+        await axios.post('http://143.198.212.38:5000/api/users/addresses', formData, { headers });
       }
 
       setMessage({
@@ -91,7 +91,7 @@ export function AddressBookPage() {
     if (!window.confirm('Are you sure you want to delete this address?')) return;
 
     try {
-      await axios.delete(`http://139.59.76.86:5000/api/users/addresses/${id}`, {
+      await axios.delete(`http://143.198.212.38:5000/api/users/addresses/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }

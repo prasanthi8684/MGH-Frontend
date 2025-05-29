@@ -96,9 +96,9 @@ export function ProductManagement() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [productsRes, categoriesRes, subcategoriesRes] = await Promise.all([
-        axios.get('http://139.59.76.86:5000/api/admin/products', { headers }),
-        axios.get('http://139.59.76.86:5000/api/admin/categories', { headers }),
-        axios.get('http://139.59.76.86:5000/api/admin/subcategories', { headers })
+        axios.get('http://143.198.212.38:5000/api/admin/products', { headers }),
+        axios.get('http://143.198.212.38:5000/api/admin/categories', { headers }),
+        axios.get('http://143.198.212.38:5000/api/admin/subcategories', { headers })
       ]);
 
       setProducts(productsRes.data);
@@ -180,7 +180,7 @@ export function ProductManagement() {
 
       if (selectedProduct) {
         await axios.put(
-          `http://139.59.76.86:5000/api/admin/products/${selectedProduct._id}`,
+          `http://143.198.212.38:5000/api/admin/products/${selectedProduct._id}`,
           formDataToSend,
           { headers }
         );
@@ -189,7 +189,7 @@ export function ProductManagement() {
           type: 'success'
         });
       } else {
-        await axios.post('http://139.59.76.86:5000/api/admin/products', formDataToSend, { headers });
+        await axios.post('http://143.198.212.38:5000/api/admin/products', formDataToSend, { headers });
         setMessage({
           text: 'Product created successfully',
           type: 'success'
@@ -222,7 +222,7 @@ export function ProductManagement() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://139.59.76.86:5000/api/admin/products/${id}`, {
+      await axios.delete(`http://143.198.212.38:5000/api/admin/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMessage({

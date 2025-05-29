@@ -34,7 +34,7 @@ export function ProfilePage() {
   const fetchUserProfile = async () => {
     try {
       const data = {id :localStorage.getItem('userId') }
-      const response = await axios.post('http://139.59.76.86:5000/api/users/profile',data);
+      const response = await axios.post('http://143.198.212.38:5000/api/users/profile',data);
 
       const userData = response.data;
       setFormData({
@@ -89,7 +89,7 @@ export function ProfilePage() {
       }
 
       const response = await axios.put(
-        'http://139.59.76.86:5000/api/users/profile',
+        'http://143.198.212.38:5000/api/users/profile',
         formDataToSend,
         {
           headers: {

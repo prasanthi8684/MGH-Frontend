@@ -16,7 +16,7 @@ export function Register() {
     jobRole:'',
     acceptTerms: false
   });
-  const APIURL = 'http://139.59.76.86:5000';
+  const APIURL = 'http://143.198.212.38:5000';
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {

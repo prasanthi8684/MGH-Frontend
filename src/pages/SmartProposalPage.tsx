@@ -27,7 +27,7 @@ export function SmartProposalPage() {
 
   const fetchProposals = async () => {
     try {
-      const response = await axios.get('http://139.59.76.86:5000/api/proposals', {
+      const response = await axios.get('http://143.198.212.38:5000/api/proposals', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -48,7 +48,7 @@ export function SmartProposalPage() {
 
     try {
       setDeletingId(id);
-      await axios.delete(`http://139.59.76.86:5000/api/proposals/${id}`, {
+      await axios.delete(`http://143.198.212.38:5000/api/proposals/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -74,7 +74,7 @@ export function SmartProposalPage() {
   const handleDownloadPDF = async (id: string) => {
     try {
       setDownloadingId(id);
-      const response = await axios.get(`http://139.59.76.86:5000/api/proposals/${id}/pdf`, {
+      const response = await axios.get(`http://143.198.212.38:5000/api/proposals/${id}/pdf`, {
         responseType: 'blob',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`

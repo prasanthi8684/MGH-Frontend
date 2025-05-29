@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         bussinessemail,
         password
     }
-    const response = await fetch('http://139.59.76.86:5000/api/auth/login', {
+    const response = await fetch('http://143.198.212.38:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = async (data: Partial<User>) => {
     try {
       const response = await axios.put(
-        'http://139.59.76.86:5000/api/auth/profile',
+        'http://143.198.212.38:5000/api/auth/profile',
         data,
         {
           headers: {

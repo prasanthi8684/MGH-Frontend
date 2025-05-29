@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Toast } from '../ui/Toast';
 
 export function ForgotPassword() {
-    const APIURL = 'http://139.59.76.86:5000';
+    const APIURL = 'http://143.198.212.38:5000';
   const [bussinessemail, setEmail] = useState('');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
