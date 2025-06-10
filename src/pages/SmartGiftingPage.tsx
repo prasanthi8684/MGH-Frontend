@@ -10,7 +10,7 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  images: string[];
+  image: string[];
   category: string;
   subcategory: string;
 }
@@ -190,7 +190,7 @@ export function SmartGiftingPage() {
                   {products.map(product => (
                     <div key={product._id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                       <img
-                        src={product.images[0] || 'https://via.placeholder.com/400'}
+                        src={product.image[0] || 'https://via.placeholder.com/400'}
                         alt={product.name}
                         className="w-full h-48 object-cover rounded-lg mb-4"
                       />
@@ -204,13 +204,13 @@ export function SmartGiftingPage() {
                         <span className="text-amber-400 font-semibold">
                           RM {product.price.toFixed(2)}
                         </span>
-                        <Link
+                        {/* <Link
                           to={`/smart-gifting/${product._id}`}
                           className="flex items-center text-sm text-amber-500 hover:text-amber-600"
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           View Details
-                        </Link>
+                        </Link> */}
                       </div>
                     </div>
                   ))}
