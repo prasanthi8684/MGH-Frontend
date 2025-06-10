@@ -190,7 +190,7 @@ export function SmartGiftingPage() {
                   {products.map(product => (
                     <div key={product._id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                       <img
-                        src={product.image[0] || 'https://via.placeholder.com/400'}
+                        src={product?.image?.[0] || 'https://via.placeholder.com/400'}
                         alt={product.name}
                         className="w-full h-48 object-cover rounded-lg mb-4"
                       />
