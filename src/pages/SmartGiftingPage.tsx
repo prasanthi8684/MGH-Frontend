@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Gift, Sparkles, AlertTriangle, Eye, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Toast } from '../components/ui/Toast';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
@@ -52,6 +51,7 @@ export function SmartGiftingPage() {
       });
 
       const data: AIRecommendation = response.data;
+      console.log(data.products[0].image[0])
       setProducts(data.products);
       setShowResults(true);
 
@@ -191,13 +191,7 @@ export function SmartGiftingPage() {
                     <div key={product._id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                      {  /* Display product image, name, description, and price */}
 
-                     <img
-                          src={Array.isArray(product?.image) && product.image.length > 0
-                            ? product.image[0]
-                            : 'https://via.placeholder.com/400'}
-                          alt={product?.name || 'Product Image'}
-                          className="w-full h-48 object-cover rounded-lg mb-4"
-                        />
+                    
                       <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                         {product.name}
                       </h3>
