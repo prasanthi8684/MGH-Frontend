@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
@@ -25,6 +25,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+   
+    if (token) {
+      // Verify token and get user data
+     // fetchUserProfile();
+    } else {
+      setLoading(false);
+    }
+  }, []);
+ const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      const response = await axios.get('http://localhost:5000/api/auth/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      setUser(response.data);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      // If token is invalid, remove it
+      localStorage.removeItem('token');
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
   const login = async (bussinessemail: string, password: string) => {
     // Simulate API call - replace with your actual login logic
     const formData = {
@@ -40,13 +77,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log(data)
         //setResponseMessage('Registration successful!');
 //alert('Login successful!')
-        localStorage.setItem('token', 'sdvfvsdhgfsdhfvgshfv');
+        localStorage.setItem('token',data.token);
+        localStorage.setItem('name', data.name);
         localStorage.setItem('userId', data.id);
         localStorage.setItem('email', data.email);
         setUser(data);
-       // setIsAuthenticated(true);
+        setIsAuthenticated(true);
       } else {
         const errorData = await response.json();
         setIsAuthenticated(false);

@@ -11,6 +11,7 @@ import { QuotationsPage } from '../pages/QuotationsPage';
 import { OrdersPage } from '../pages/OrdersPage';
 import { ProfilePage } from '../pages/ProfilePage';
 import { BrandingPage } from '../pages/BrandingPage';
+import { CartPage } from '../pages/CartPage';
 import { SecurityPage } from '../pages/SecurityPage';
 import { AddressBookPage } from '../pages/AddressBookPage';
 import { ForgotPassword } from './auth/ForgotPassword';
@@ -37,6 +38,7 @@ export function MainContent() {
           <Route path="/address-book" element={<AddressBookPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/cart" element={<CartPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

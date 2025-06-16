@@ -151,7 +151,7 @@ export function SmartCatalogPage() {
                 </h3>
                 <div className="flex justify-between items-center">
                   <span className="text-amber-500 font-semibold">
-                    RM {product.price.toFixed(2)}
+                    RM {product.price?.toFixed(2)}
                   </span>
                   
                 </div>

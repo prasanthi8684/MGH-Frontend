@@ -1,13 +1,17 @@
 import React from 'react';
-import { Sun, Moon, LogOut } from 'lucide-react';
+import { Sun, Moon, LogOut,ShoppingCart } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+
 import { Link, useNavigate } from 'react-router-dom';
 import { SearchBar } from './SearchBar';
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
+    const { cart } = useCart();
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -31,6 +35,18 @@ export function Header() {
           <SearchBar />
 
           <div className="flex items-center space-x-4">
+            <Link
+              to="/cart"
+              className="relative p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+              aria-label="Shopping Cart"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              {cart && cart.totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cart.totalItems > 99 ? '99+' : cart.totalItems}
+                </span>
+              )}
+            </Link>
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
