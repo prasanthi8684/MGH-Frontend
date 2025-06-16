@@ -99,7 +99,7 @@ export function CreateProposalPage() {
   const fetchProducts = async () => {
     try {
       setLoadingProducts(true);
-      const response = await axios.get('http://localhost:5000/api/admin/products', {
+      const response = await axios.get('http://143.198.212.38:5000/api/admin/products', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -202,7 +202,7 @@ export function CreateProposalPage() {
       const totalAmount = formData.products.reduce((sum, product) => sum + product?.totalPrice, 0);
       
       const response = await axios.post(
-        'http://localhost:5000/api/proposals',
+        'http://143.198.212.38:5000/api/proposals',
         {
           ...formData,
           status: isDraft ? 'draft' : 'sent',

@@ -101,7 +101,7 @@ export function CartPage() {
       };
 
       const response = await axios.post(
-        'http://localhost:5000/api/quotations',
+        'http://143.198.212.38:5000/api/quotations',
         proposalData,
         {
           headers: {

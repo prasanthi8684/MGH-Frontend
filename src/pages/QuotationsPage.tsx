@@ -60,7 +60,7 @@ export function QuotationsPage() {
 
   const fetchQuotations = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/quotations', {
+      const response = await axios.get('http://143.198.212.38:5000/api/quotations', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -90,7 +90,7 @@ export function QuotationsPage() {
     try {
       setUpdatingStatusId(id);
       await axios.put(
-        `http://localhost:5000/api/quotations/${id}`,
+        `http://143.198.212.38:5000/api/quotations/${id}`,
         { status: newStatus },
         {
           headers: {
@@ -125,7 +125,7 @@ export function QuotationsPage() {
 
     try {
       setDeletingId(id);
-      await axios.delete(`http://localhost:5000/api/quotations/${id}`, {
+      await axios.delete(`http://143.198.212.38:5000/api/quotations/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -148,7 +148,7 @@ export function QuotationsPage() {
   const handleDownload = async (id: string) => {
     try {
       setDownloadingId(id);
-      const response = await axios.get(`http://localhost:5000/api/quotations/${id}/pdf`, {
+      const response = await axios.get(`http://143.198.212.38:5000/api/quotations/${id}/pdf`, {
         responseType: 'blob',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`

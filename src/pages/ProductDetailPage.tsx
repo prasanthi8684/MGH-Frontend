@@ -63,7 +63,7 @@ export function ProductDetailPage() {
     if (!id) return;
     
     try {
-      const response = await axios.get(`http://localhost:5000/api/admin/products/${id}`, {
+      const response = await axios.get(`http://143.198.212.38:5000/api/admin/products/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -89,7 +89,7 @@ export function ProductDetailPage() {
     if (!product || !id) return;
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/admin/products/${id}/price?quantity=${quantity}`, {
+      const response = await axios.get(`http://143.198.212.38:5000/api/admin/products/${id}/price?quantity=${quantity}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -188,7 +188,7 @@ export function ProductDetailPage() {
         status: 'current'
       };
 
-      await axios.post('http://localhost:5000/api/quotations', quotationData, {
+      await axios.post('http://143.198.212.38:5000/api/quotations', quotationData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }

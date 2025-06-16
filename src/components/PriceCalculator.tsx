@@ -51,7 +51,7 @@ export function PriceCalculator({ productId, basePrice, priceRanges, onPriceChan
     if (productId) {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5000/api/products/${productId}/price`, {
+        const response = await axios.get(`http://143.198.212.38:5000/api/products/${productId}/price`, {
           params: { quantity: newQuantity },
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`

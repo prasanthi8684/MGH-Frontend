@@ -52,7 +52,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/cart', {
+      const response = await axios.get('http://143.198.212.38:5000/api/cart', {
         headers: getAuthHeaders()
       });
       setCart(response.data);
@@ -70,7 +70,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://localhost:5000/api/cart/add',
+        'http://143.198.212.38:5000/api/cart/add',
         { productId, quantity, unitPrice },
         { headers: getAuthHeaders() }
       );
@@ -89,7 +89,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const response = await axios.put(
-        `http://localhost:5000/api/cart/items/${itemId}`,
+        `http://143.198.212.38:5000/api/cart/items/${itemId}`,
         { quantity, unitPrice },
         { headers: getAuthHeaders() }
       );
@@ -108,7 +108,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const response = await axios.delete(
-        `http://localhost:5000/api/cart/items/${itemId}`,
+        `http://143.198.212.38:5000/api/cart/items/${itemId}`,
         { headers: getAuthHeaders() }
       );
       setCart(response.data);
@@ -125,7 +125,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     
     try {
       setLoading(true);
-      const response = await axios.delete('http://localhost:5000/api/cart/clear', {
+      const response = await axios.delete('http://143.198.212.38:5000/api/cart/clear', {
         headers: getAuthHeaders()
       });
       setCart(response.data);
