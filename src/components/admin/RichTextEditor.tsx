@@ -1,6 +1,9 @@
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import type { Editor } from '@ckeditor/ckeditor5-core';
+
 import { useState } from 'react';
+const CompatibleClassicEditor = ClassicEditor as unknown as { new(...args: any[]): Editor };
 
 interface RichTextEditorProps {
   value: string;
@@ -112,7 +115,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         </div>
       )}
       <CKEditor
-        editor={ClassicEditor}
+         editor={CompatibleClassicEditor as any}
         config={{
           ...customConfig,
           extraPlugins: [uploadPlugin]
