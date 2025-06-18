@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, Image as ImageIcon, X, Loader2, Minus } from 'lucide-react';
 import axios from 'axios';
 import { Toast } from '../../components/ui/Toast';
-import { RichTextEditor } from '../../components/admin/RichTextEditor';
 
 interface PriceTier {
   minQuantity: number;
@@ -519,7 +518,7 @@ export function ProductManagement() {
                     <option value="">Select a category</option>
                     <option value="smart-catalog">Smart-Catalog</option>
                     <option value="digital-gifting">Digital-Gifting</option>
-                   
+
                   </select>
 
 
@@ -552,8 +551,8 @@ export function ProductManagement() {
                       setValidationErrors({ ...validationErrors, basePrice: undefined });
                     }}
                     className={`w-full px-3 py-2 border rounded-lg ${validationErrors.basePrice
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-300 focus:ring-amber-500'
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-amber-500'
                       }`}
                     required
                   />
@@ -574,8 +573,8 @@ export function ProductManagement() {
                       setValidationErrors({ ...validationErrors, quantity: undefined });
                     }}
                     className={`w-full px-3 py-2 border rounded-lg ${validationErrors.quantity
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-300 focus:ring-amber-500'
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-amber-500'
                       }`}
                     required
                   />
@@ -588,9 +587,11 @@ export function ProductManagement() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Description
                   </label>
-                  <RichTextEditor
+                  <textarea
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                    rows={5}
                     value={formData.description}
-                    onChange={(value) => setFormData({ ...formData, description: value })}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                 </div>
 
@@ -679,8 +680,8 @@ export function ProductManagement() {
                     Product Images
                   </label>
                   <div className={`border-2 border-dashed rounded-lg p-4 ${validationErrors.images
-                      ? 'border-red-500'
-                      : 'border-gray-300'
+                    ? 'border-red-500'
+                    : 'border-gray-300'
                     }`}>
                     <input
                       type="file"
