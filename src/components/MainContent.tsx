@@ -24,6 +24,7 @@ export function MainContent() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/smart-gifting" element={<SmartGiftingPage />} />
+          <Route path="/smart-gifting/:id" element={<ProductDetailPage />} />
           <Route path="/smart-catalog" element={<SmartCatalogPage />} />
           <Route path="/smart-catalog/:id" element={<ProductDetailPage />} />
           <Route path="/digital-gifting/:id" element={<ProductDetailPage />} />

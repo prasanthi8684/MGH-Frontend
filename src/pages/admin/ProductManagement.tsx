@@ -282,7 +282,7 @@ export function ProductManagement() {
           type: 'success'
         });
       } else {
-        await axios.post('http://143.198.212.38:5000/api/admin/products', formDataToSend, { headers });
+        await axios.post('http://localhost:5000/api/admin/products', formDataToSend, { headers });
         setMessage({
           text: 'Product created successfully',
           type: 'success'

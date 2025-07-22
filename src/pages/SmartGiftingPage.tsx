@@ -3,6 +3,7 @@ import { Gift, Sparkles, AlertTriangle, Eye, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { Toast } from '../components/ui/Toast';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
+import { Link } from 'react-router-dom';
 
 interface Product {
   _id: string;
@@ -25,6 +26,9 @@ interface AIRecommendation {
 }
 
 export function SmartGiftingPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 6;
+
   const [products, setProducts] = useState<Product[]>([]);
   const [budget, setBudget] = useState<string>('130');
   const [quantity, setQuantity] = useState<string>('75');
@@ -33,43 +37,61 @@ export function SmartGiftingPage() {
   const [showResults, setShowResults] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setShowResults(false);
-    
-    try {
-      const response = await axios.get('http://143.198.212.38:5000/api/smart-gifting/recommendations', {
-        params: {
-          prompt,
-          budget,
-          quantity
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+  const totalPages = Math.ceil(products.length / productsPerPage);
+  const currentProducts = products.slice(
+    (currentPage - 1) * productsPerPage,
+    currentPage * productsPerPage
+  );
 
-      const data: AIRecommendation = response.data;
-      console.log(data.products[0].image[0])
-      setProducts(data.products);
-      setShowResults(true);
-
-      if (data.products.length === 0) {
-        setMessage({
-          text: 'No matching products found. Try adjusting your criteria.',
-          type: 'error'
-        });
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setShowResults(false);
+  
+  try {
+    const response = await axios.get('http://localhost:5000/api/smart-gifting/recommendations', {
+      params: {
+        prompt,
+        budget,
+        quantity
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
-    } catch (error) {
+    });
+
+    const data: AIRecommendation = response.data;
+    console.log(data.products)
+    setProducts(data.products);
+    setShowResults(true);
+
+    if (data.products.length === 0) {
       setMessage({
-        text: 'Error getting recommendations. Please try again.',
+        text: 'No matching products found. Try adjusting your criteria.',
         type: 'error'
       });
-    } finally {
-      setIsLoading(false);
     }
-  };
+  } catch (error) {
+    setMessage({
+      text: 'Error getting recommendations. Please try again.',
+      type: 'error'
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const handleNext = () => {
+  if (currentPage < totalPages) {
+    setCurrentPage(prev => prev + 1);
+  }
+};
+
+const handlePrevious = () => {
+  if (currentPage > 1) {
+    setCurrentPage(prev => prev - 1);
+  }
+};
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -185,9 +207,9 @@ export function SmartGiftingPage() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-400"></div>
               </div>
             ) : showResults ? (
-              products.length > 0 ? (
+              currentProducts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {products.map(product => (
+                  {currentProducts.map(product => (
                     <div key={product._id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                      {  /* Display product image, name, description, and price */}
 
@@ -195,6 +217,7 @@ export function SmartGiftingPage() {
                       <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                         {product.name}
                       </h3>
+                       
                       <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
                         {product.description}
                       </p>
@@ -202,13 +225,13 @@ export function SmartGiftingPage() {
                         <span className="text-amber-400 font-semibold">
                           RM {product.price.toFixed(2)}
                         </span>
-                        {/* <Link
+                        <Link
                           to={`/smart-gifting/${product._id}`}
                           className="flex items-center text-sm text-amber-500 hover:text-amber-600"
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           View Details
-                        </Link> */}
+                        </Link>
                       </div>
                     </div>
                   ))}
@@ -227,7 +250,32 @@ export function SmartGiftingPage() {
               </div>
             )}
           </div>
+          
+
+
+        {products.length > productsPerPage && (
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={handlePrevious}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ← Previous
+            </button>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Page {currentPage} of {totalPages}
+            </p>
+            <button
+              onClick={handleNext}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-amber-400 hover:bg-amber-500 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next →
+            </button>
+          </div>
+        )}
         </div>
+       
       </div>
     </div>
   );
