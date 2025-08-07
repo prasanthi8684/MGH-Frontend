@@ -1,17 +1,17 @@
 import React from 'react';
-import { Sun, Moon, LogOut,ShoppingCart } from 'lucide-react';
+import { Sun, Moon, LogOut, ShoppingCart, Heart } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-
-import { Link, useNavigate } from 'react-router-dom';
+import { useFavorites } from '../context/FavoritesContext';
+import { useNavigate, Link } from 'react-router-dom';
 import { SearchBar } from './SearchBar';
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
-    const { cart } = useCart();
-
+  const { cart } = useCart();
+  const { favoritesCount } = useFavorites();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -24,20 +24,27 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link
-                              to="/"
-                              className="text-3xl text-red-600 hover:text-red-500 font-medium"
-                            >
-                              MHG
-                            </Link>
+            <div className="text-2xl font-bold text-red-600">MHG</div>
           </div>
           
           <SearchBar />
 
           <div className="flex items-center space-x-4">
             <Link
+              to="/favorites"
+              className="relative p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Favorites"
+            >
+              <Heart className="h-5 w-5" />
+              {favoritesCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {favoritesCount > 99 ? '99+' : favoritesCount}
+                </span>
+              )}
+            </Link>
+            <Link
               to="/cart"
-              className="relative p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="relative p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Shopping Cart"
             >
               <ShoppingCart className="h-5 w-5" />

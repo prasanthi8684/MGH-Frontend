@@ -16,6 +16,7 @@ import { SecurityPage } from '../pages/SecurityPage';
 import { AddressBookPage } from '../pages/AddressBookPage';
 import { ForgotPassword } from './auth/ForgotPassword';
 import { ResetPassword } from './auth/ResetPassword';
+ import { FavoritesPage } from '../pages/FavoritesPage';
 
 export function MainContent() {
   return (
@@ -40,6 +41,7 @@ export function MainContent() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/cart" element={<CartPage />} />
+          { <Route path="/favorites" element={<FavoritesPage />} /> }
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

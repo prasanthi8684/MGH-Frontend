@@ -74,7 +74,7 @@ export function SmartProposalPage() {
   const handleDownloadPDF = async (id: string) => {
     try {
       setDownloadingId(id);
-      const response = await axios.get(`http://localhost:5000/api/proposals/${id}/pdf`, {
+      const response = await axios.get(`http://143.198.212.38:5000/api/proposals/${id}/pdf`, {
         responseType: 'blob',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`

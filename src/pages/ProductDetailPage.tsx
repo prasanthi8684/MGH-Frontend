@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Heart, Share2, FileText, Plus, Minus, ShoppingCart, Check } from 'lucide-react';
+import { ChevronLeft, Share2, FileText, Plus, Minus, ShoppingCart, Check, Heart } from 'lucide-react';
 import axios from 'axios';
 import { Toast } from '../components/ui/Toast';
 import { useCart } from '../context/CartContext';
@@ -44,6 +44,8 @@ export function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
+  const [quantityInput, setQuantityInput] = useState<string>('1'); // for editable input
+
   const [currentPrice, setCurrentPrice] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,6 +59,9 @@ export function ProductDetailPage() {
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [likingInProgress, setLikingInProgress] = useState(false);
 
   // Memoize the fetch function to prevent unnecessary re-renders
   const fetchProduct = useCallback(async () => {
@@ -73,6 +78,9 @@ export function ProductDetailPage() {
         setSelectedImage(response.data.images[0]);
       }
       setCurrentPrice(response.data.basePrice);
+      
+      // Fetch like status
+      await fetchLikeStatus();
     } catch (error) {
       setError('Error fetching product details');
     } finally {
@@ -109,6 +117,56 @@ export function ProductDetailPage() {
     }
   }, [updatePrice, product]);
 
+  // Fetch like status
+  const fetchLikeStatus = useCallback(async () => {
+    if (!id) return;
+    
+    try {
+      const response = await axios.get(`http://143.198.212.38:5000/api/likes/products/${id}/status`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      setIsLiked(response.data.isLiked);
+      setLikeCount(response.data.likeCount);
+    } catch (error) {
+      console.error('Error fetching like status:', error);
+    }
+  }, [id]);
+
+  // Toggle like functionality
+  const handleToggleLike = useCallback(async () => {
+    if (!id || likingInProgress) return;
+    
+    try {
+      setLikingInProgress(true);
+      const response = await axios.post(
+        `http://143.198.212.38:5000/api/likes/products/${id}/toggle`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      
+      setIsLiked(response.data.isLiked);
+      setLikeCount(response.data.likeCount);
+      
+      setMessage({
+        text: response.data.isLiked ? 'Added to favorites!' : 'Removed from favorites!',
+        type: 'success'
+      });
+    } catch (error: any) {
+      setMessage({
+        text: error.response?.data?.error || 'Failed to update favorites',
+        type: 'error'
+      });
+    } finally {
+      setLikingInProgress(false);
+    }
+  }, [id, likingInProgress]);
+
   const getPriceForQuantity = (qty: number): number => {
     if (!product) return 0;
     
@@ -124,23 +182,28 @@ export function ProductDetailPage() {
   };
 
   const handleQuantityChange = useCallback((value: number) => {
-    if (product && value >= 1 && value <= product.quantity) {
-      setQuantity(value);
-    }
-  }, [product]);
+  if (product && value >= 1 && value <= product.quantity) {
+    setQuantity(value);
+    setQuantityInput(value.toString()); // sync input field
+  }
+}, [product]);
+
 
   const handleQuantityIncrement = useCallback(() => {
-    if (product && quantity < product.quantity) {
-      setQuantity(prev => prev + 1);
-    }
-  }, [product, quantity]);
+  if (product && quantity < product.quantity) {
+    const newQuantity = quantity + 1;
+    setQuantity(newQuantity);
+    setQuantityInput(newQuantity.toString()); // update input
+  }
+}, [product, quantity]);
 
-  const handleQuantityDecrement = useCallback(() => {
-    if (quantity > 1) {
-      setQuantity(prev => prev - 1);
-    }
-  }, [quantity]);
-
+const handleQuantityDecrement = useCallback(() => {
+  if (quantity > 1) {
+    const newQuantity = quantity - 1;
+    setQuantity(newQuantity);
+    setQuantityInput(newQuantity.toString()); // update input
+  }
+}, [quantity]);
   // Prevent double API calls with proper state management
   const handleAddToCart = useCallback(async () => {
     if (!product || addingToCart) return; // Prevent multiple calls
@@ -185,7 +248,7 @@ export function ProductDetailPage() {
           images: product.images
         }],
         totalAmount: totalPrice,
-        status: 'current'
+        status: 'draft'
       };
 
       await axios.post('http://143.198.212.38:5000/api/quotations', quotationData, {
@@ -324,11 +387,11 @@ export function ProductDetailPage() {
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-2xl font-bold text-red-500">
-                  RM {currentPrice?.toFixed(2)}
+                  RM {currentPrice.toFixed(2)}
                 </span>
                 {currentPrice !== product.basePrice && (
                   <span className="ml-2 text-lg text-gray-500 line-through">
-                    RM {product.basePrice?.toFixed(2)}
+                    RM {product.basePrice.toFixed(2)}
                   </span>
                 )}
                 <div className="text-sm text-gray-500 mt-1">
@@ -336,12 +399,30 @@ export function ProductDetailPage() {
                 </div>
               </div>
               <div className="flex space-x-4">
-                <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <Heart className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+                <button
+                  onClick={handleToggleLike}
+                  disabled={likingInProgress}
+                  className="flex items-center space-x-2 p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  title={isLiked ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  <Heart 
+                    className={`h-6 w-6 transition-colors ${
+                      isLiked 
+                        ? 'text-red-500 fill-red-500' 
+                        : 'text-gray-500 dark:text-gray-400 hover:text-red-500'
+                    }`} 
+                  />
+                  <span className={`text-sm font-medium ${
+                    isLiked 
+                      ? 'text-red-500' 
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}>
+                    {likeCount}
+                  </span>
                 </button>
-                <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                {/* <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                   <Share2 className="h-6 w-6 text-gray-500 dark:text-gray-400" />
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
@@ -369,10 +450,27 @@ export function ProductDetailPage() {
                 </button>
                 <input
                   type="number"
-                  value={quantity}
-                  onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                  value={quantityInput}
+                  onChange={(e) => {
+    const val = e.target.value;
+    setQuantityInput(val); // allow user to type freely
+
+    const parsed = parseInt(val);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= product.quantity) {
+      setQuantity(parsed); // update price immediately
+    }
+  }}
+  onBlur={() => {
+    const parsed = parseInt(quantityInput);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= product.quantity) {
+      setQuantity(parsed);
+      setQuantityInput(parsed.toString());
+    } else {
+      // fallback to last valid quantity
+      setQuantityInput(quantity.toString());
+    }
+  }}
                   className="w-16 text-center border-x border-gray-300 dark:border-gray-600 bg-transparent py-2"
-                  min="1"
                   max={product.quantity}
                 />
                 <button

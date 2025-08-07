@@ -4,6 +4,8 @@ import App from './App.tsx';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { FavoritesProvider } from './context/FavoritesContext';
+
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -12,7 +14,11 @@ createRoot(document.getElementById('root')!).render(
     <AuthProvider>
       <CartProvider>
         <ThemeProvider>
+            <FavoritesProvider>
+
           <App />
+            </FavoritesProvider>
+
         </ThemeProvider>
       </CartProvider>
     </AuthProvider>

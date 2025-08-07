@@ -10,7 +10,7 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  image: string[];
+  images: string[];
   category: string;
   subcategory: string;
 }
@@ -49,7 +49,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   setShowResults(false);
   
   try {
-    const response = await axios.get('http://localhost:5000/api/smart-gifting/recommendations', {
+    const response = await axios.get('http://143.198.212.38:5000/api/smart-gifting/recommendations', {
       params: {
         prompt,
         budget,
@@ -213,13 +213,18 @@ const handlePrevious = () => {
                     <div key={product._id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                      {  /* Display product image, name, description, and price */}
 
-                    
                       <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                         {product.name}
                       </h3>
-                       
+                      {product.images.length > 0 && (
+                        <img
+                          src={product.images[0] || 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400'}
+                          alt={product.name}
+                          className="w-full h-48 object-cover rounded-lg mb-2"
+                        />
+                      )}
                       <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
-                        {product.description}
+                        {product.description.replace(/<[^>]+>/g, '')}
                       </p>
                       <div className="flex items-center justify-between">
                         <span className="text-amber-400 font-semibold">
